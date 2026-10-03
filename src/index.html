@@ -92,6 +92,12 @@ input[type=number] { width: 110px; }
 .topbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--rail); }
 .topbar .title b { font-weight: 600; } .topbar .title span { color: var(--mute); font-size: 14px; margin-left: 8px; }
 .topbar .right { display: flex; gap: 8px; align-items: center; }
+.coach { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--glacier2); border-bottom: 1px solid var(--rail); font-size: 15px; }
+.coach .ctext b { color: var(--glacier); font-weight: 600; }
+.coach .btn { flex: 0 0 auto; }
+.hl { outline: 2px solid var(--glacier); outline-offset: 3px; animation: hl 1.2s ease-in-out infinite; }
+@keyframes hl { 50% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) { .hl { animation: none; } }
 .credits { font-family: var(--mono); font-size: 14px; color: var(--mute); }
 .credits b { color: var(--paper); font-weight: 500; }
 .tape { display: flex; overflow-x: auto; scrollbar-width: none; background: var(--slab); border-bottom: 1px solid var(--rail); }
@@ -256,6 +262,7 @@ input[type=number] { width: 110px; }
     <div class="title"><b id="lvName"></b><span id="lvTag"></span></div>
     <div class="right"><span class="credits" id="creditsBox"></span><button class="btn quiet" id="briefBtn" data-t="brief">Brief</button><button class="btn quiet" id="langBtn2">TR</button></div>
   </div>
+  <div class="coach" id="coach" hidden><div class="ctext" id="coachText"></div><button class="btn quiet" id="coachSkip" data-t="coachSkip">Skip the guide</button></div>
   <div class="tape" id="tape"></div>
   <div class="mtabs"><button class="on" data-col="world" data-t="world">World</button><button data-col="rules" data-t="rules">Rules</button><button data-col="chain" data-t="chain">Chain</button></div>
   <div class="bench">
@@ -288,6 +295,7 @@ input[type=number] { width: 110px; }
   <h3 id="bTitle"></h3>
   <div class="lede" id="bLede"></div>
   <p id="bText"></p>
+  <div class="goals" id="bGoals"></div>
   <div class="src" id="bSrc"></div>
   <div class="hint"><button class="btn quiet" id="hintBtn" data-t="hint">Show a hint</button><p id="bHint" hidden></p></div>
   <div class="foot"><button class="btn primary" id="bOk" data-t="briefOk">Start writing rules</button></div>
@@ -400,6 +408,8 @@ function openLevel(lv, daily) {
   $('routeBox').hidden = !lv.routing; if (lv.routing) $('routeBox').innerHTML = `<div><span data-t="routing">${tr('Routing fraction: this share of the staking yield becomes service credits')}</span></div><input type="range" id="routeIn" min="0" max="100" value="${G.routing}"><div class="mono" id="routeVal"></div>`;
   if (lv.routing) { $('routeIn').oninput = () => { G.routing = +$('routeIn').value; $('routeVal').textContent = tr('{p}% routed, {k}% kept', { p: G.routing, k: 100 - G.routing }); stopRun(); G.res = null; G.cur = -1; renderAll(); }; $('routeIn').oninput(); }
   stopRun(); renderAll();
+  if (lv.id === 1 && !daily && !tutDone() && G.cards.length === 0) startCoach(); else coach = null;
+  renderCoach();
   showBrief();
 }
 $('backBtn').onclick = () => { stopRun(); saveRules(); G = null; $('levelScr').hidden = true; $('titleScr').hidden = false; renderLevels(); renderDaily(); };
@@ -520,6 +530,7 @@ let edIdx = -1, draft = null;
 const KINDS = { block: 'at the end of a block', every: 'every N blocks', event: 'when an event happens', signal: 'when a value compares', webcall: 'when an API answer compares', fired: 'when another rule fired', dropped: 'when a rule was dropped' };
 function openEditor(i) {
   const lv = G.lv; edIdx = i; draft = i >= 0 ? JSON.parse(JSON.stringify(G.cards[i])) : { when: { kind: lv.triggers[0] }, then: { kind: Object.keys(lv.actions)[0] }, mode: 'once' };
+  if (coach && i < 0 && (coach.step === 0 || coach.step === 3)) { draft = JSON.parse(JSON.stringify(COACH_RULES[coach.step === 0 ? 0 : 1])); coachAdvance(coach.step + 1); }
   $('edTitle').textContent = i >= 0 ? tr('Edit rule {r}', { r: i + 1 }) : tr('New rule');
   const k = $('edKind'); k.innerHTML = lv.triggers.map(t => `<option value="${t}">${tr(KINDS[t])}</option>`).join(''); k.value = draft.when.kind;
   const a = $('edAction'); a.innerHTML = Object.keys(lv.actions).map(t => `<option value="${t}">${actT(lv, t)}</option>`).join(''); a.value = draft.then.kind;
@@ -528,6 +539,7 @@ function openEditor(i) {
   $('edAndRow').hidden = !hasCmp; $('edAndOn').checked = !!draft.when.and; $('edAndFields').hidden = !draft.when.and;
   buildWhenFields(); buildAndFields(); buildActFields(); updatePreview();
   $('editor').hidden = false; $('edErr').textContent = '';
+  renderCoach();
 }
 function sel(name, opts, val) { return `<select data-f="${name}">${opts.map(o => `<option value="${o[0]}"${String(o[0]) === String(val) ? ' selected' : ''}>${o[1]}</option>`).join('')}</select>`; }
 function num(name, val, ph) { return `<input type="number" data-f="${name}" value="${val != null ? val : ''}" placeholder="${ph || ''}">`; }
@@ -565,20 +577,50 @@ $('edKind').onchange = () => { draft.when = { kind: $('edKind').value }; if ($('
 $('edAction').onchange = () => { draft.then = { kind: $('edAction').value }; buildActFields(); updatePreview(); };
 $('edMode').onchange = () => { draft.mode = $('edMode').value; updatePreview(); };
 $('edAndOn').onchange = () => { $('edAndFields').hidden = !$('edAndOn').checked; if ($('edAndOn').checked) buildAndFields(); updatePreview(); };
-$('edCancel').onclick = () => { $('editor').hidden = true; };
+$('edCancel').onclick = () => { $('editor').hidden = true; if (coach && (coach.step === 1 || coach.step === 4)) coachAdvance(coach.step - 1); else renderCoach(); };
 $('edSave').onclick = () => {
   const card = JSON.parse(JSON.stringify(draft)); if (!$('edAndOn').checked) delete card.when.and;
   if (card.when.and && (card.when.and.value == null || card.when.and.value === '') && card.when.and.kind === 'signal') { $('edErr').textContent = tr('set a value for the second condition'); return; }
   const probs = T.validate(G.lv, card); if (probs.length) { $('edErr').textContent = probs.map(p => tr(p)).join(', '); return; }
   stopRun(); if (edIdx >= 0) G.cards[edIdx] = card; else G.cards.push(card);
   G.res = null; G.cur = -1; saveRules(); $('editor').hidden = true; renderAll(); showCol('rules');
+  if (coach && (coach.step === 1 || coach.step === 4)) coachAdvance(coach.step + 1); else renderCoach();
 };
 $('addBtn').onclick = () => openEditor(-1);
+
+// ---------- guided first level ----------
+// The first time someone opens level 1 a guide walks them through one rule, one run, then the second rule.
+let coach = null;
+const COACH_STEPS = [
+  { text: 'Your first goal: buy 100 tokens when the presale opens. Rules do that. Press <b>Add rule</b>.', target: 'addBtn' },
+  { text: 'This rule is filled in for you: when the presale opens, buy 100 tokens. Read it, then press <b>Save rule</b>.', target: 'edSave' },
+  { text: 'The chain evaluates your rule at the end of every block. Press <b>Run</b> and watch block 12.', target: 'runBtn' },
+  { text: 'One goal down. The second one needs a recurring rule: every 8 blocks, claim rewards. Press <b>Add rule</b>, it is filled in again.', target: 'addBtn' },
+  { text: 'Check the fields: every 8 blocks, Claim rewards, mode recurring. Then <b>Save rule</b>.', target: 'edSave' },
+  { text: 'Press <b>Run</b> again. Both goals, three stars.', target: 'runBtn' },
+];
+const tutDone = () => { try { return localStorage.getItem('rx_tut') === '1'; } catch (e) { return false; } };
+function startCoach() { coach = { step: 0 }; renderCoach(); }
+function endCoach() { coach = null; try { localStorage.setItem('rx_tut', '1'); } catch (e) {} renderCoach(); }
+function renderCoach() {
+  document.querySelectorAll('.hl').forEach(el => el.classList.remove('hl'));
+  const box = $('coach'); if (!coach || !G || G.lv.id !== 1 || G.daily) { box.hidden = true; return; }
+  const st = COACH_STEPS[coach.step]; if (!st) { box.hidden = true; return; }
+  box.hidden = false; $('coachText').innerHTML = tr(st.text);
+  const t = $(st.target); if (t) t.classList.add('hl');
+}
+function coachAdvance(to) { if (!coach) return; coach.step = to; renderCoach(); }
+$('coachSkip').onclick = endCoach;
+const COACH_RULES = [
+  { when: { kind: 'event', id: 'presale' }, then: { kind: 'buy', amount: 100 }, mode: 'once' },
+  { when: { kind: 'every', n: 8, from: 0 }, then: { kind: 'claim' }, mode: 'recurring' },
+];
 
 // ---------- brief ----------
 function showBrief() {
   const lv = G.lv; $('bTitle').textContent = (G.daily ? tr('Daily puzzle') + ' · ' : lv.id + ' · ') + lvT(lv, 'name'); $('bLede').textContent = lvT(lv, 'lede'); $('bText').textContent = lvT(lv, 'brief');
   const s = LV.SRC[lv.src]; $('bSrc').innerHTML = tr('From') + ': <a href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a>';
+  $('bGoals').innerHTML = `<div class="mute">${tr('Goals')}</div>` + lv.goals.map((g, i) => `<div class="goal"><span class="i">${i + 1}.</span><span>${goalT(lv, i)}</span><span></span></div>`).join('');
   $('bHint').hidden = true; $('bHint').textContent = lvT(lv, 'hint'); $('hintBtn').hidden = false;
   $('briefSheet').hidden = false;
 }
@@ -641,6 +683,7 @@ function showResult() {
   $('rPost').textContent = '';
   if (!legacy && chainRes.all) {
     const p = loadProg();
+    if (coach) endCoach();
     if (G.daily) { if (!p.daily[G.daily] || chainRes.score > p.daily[G.daily]) p.daily[G.daily] = chainRes.score; }
     else { p.stars[lv.key] = Math.max(p.stars[lv.key] || 0, chainRes.stars); p.best[lv.key] = Math.max(p.best[lv.key] || 0, chainRes.score); }
     saveProg(p);
@@ -649,7 +692,7 @@ function showResult() {
   $('resultSheet').hidden = false;
   $('rShare').onclick = () => { const text = G.daily ? `Reactor daily ${G.daily}: ${lvT(lv, 'name').replace(' (daily)', '')} solved with ${G.cards.length} rule${G.cards.length === 1 ? '' : 's'}, score ${chainRes.score}. The chain reacted, no bot needed. A fan made puzzle game about @RialoHQ's reactive transactions.` : `Reactor level ${lv.id} ${lv.name}: ${starStr(chainRes.stars)} with ${G.cards.length} rule${G.cards.length === 1 ? '' : 's'}, score ${chainRes.score}. The chain reacted, no bot needed. A fan made puzzle game about @RialoHQ's reactive transactions.`; window.open('https://x.com/intent/post?text=' + encodeURIComponent(text + '\n' + location.origin + location.pathname), '_blank', 'noopener'); };
 }
-$('rRetry').onclick = () => { $('resultSheet').hidden = true; showCol('rules'); };
+$('rRetry').onclick = () => { $('resultSheet').hidden = true; showCol('rules'); if (coach && coach.step === 2) coachAdvance(3); };
 $('rNext').onclick = () => { $('resultSheet').hidden = true; const next = LV.LEVELS.find(l => l.id === G.lv.id + 1); if (next) openLevel(next); };
 function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') for (const id of ['editor', 'briefSheet', 'resultSheet', 'howSheet']) $(id).hidden = true; });
