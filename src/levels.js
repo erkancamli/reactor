@@ -40,8 +40,8 @@
         claim: { label: 'Claim rewards', cost: 2, apply: (s) => { if (s.unclaimed < 6) return { rejected: 'nothing worth claiming yet' }; s.claimed += s.unclaimed; s.unclaimed = 0; s.claims++; return { goal: 'claim', note: 'claimed' }; } },
       },
       goals: [
-        { id: 'buy', text: 'Buy at least 100 tokens while the presale is open (blocks 12 to 15)', par: 13, check: (s, t, at) => ({ ok: s.tokens >= 100, at: at.buy ? at.buy[0] : null }) },
-        { id: 'claim', text: 'Claim rewards at least three times, never with fewer than 6 RLO waiting', par: 30, check: (s) => ({ ok: s.claims >= 3, at: 30 }) },
+        { id: 'buy', text: 'Buy at least 100 tokens while the presale is open (blocks 12 to 15)', par: 13, check: (s, t, at) => ({ ok: s.tokens >= 100, at: at.buy ? at.buy[0] : null, note: s.tokens ? `${s.tokens} tokens` : 'nothing bought' }) },
+        { id: 'claim', text: 'Claim rewards at least three times, never with fewer than 6 RLO waiting', par: 30, check: (s) => ({ ok: s.claims >= 3, at: 30, note: `${s.claims} claims` }) },
       ],
       legacy: { delay: [1, 4], drop: 0.5, congested: [12, 13, 14, 15, 16] },
       hint: 'A rule that fires on the "Presale opens" event lands its buy in block 13. A recurring rule every 8 blocks claims three times by block 30.',

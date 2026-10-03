@@ -19,7 +19,8 @@
     how1: "Çoğu zincirde bir kontrat yalnızca biri işlem gönderdiğinde çalışır. Bir fiyata, bir son tarihe ya da bir API'ye tepki vermek için izleyip işlem gönderen bir bot çalıştırırsın. Rialo'da kontrat bir koşul kaydeder, zincir o koşulu her blok sonunda kendisi değerlendirir; koşul sağlanınca eylem bir sonraki blokta çalışır. Reaktif işlem budur.",
     how2: "Reactor'da her kural böyle bir koşuldur. Dünya blok blok ilerler: veri akışları hareket eder, olaylar gerçekleşir, API çağrıları bir gecikmeyle döner. Krediler Stake for Service'in yerini tutar: her eylem ve her API çağrısı biraz harcar, kredisi kalmayan kural atlanır.",
     how3: "\"Keeper botu\" seçeneğini açarsan aynı kurallar eski usulle çalışır: her bloğu geç gören, yoğunlukta işlemi bazen yerleştiremeyen zincir dışı bir izleyici. Sonuç ekranı ikisini birden gösterir.",
-    routing: 'Yönlendirme oranı: staking getirisinin bu kadarı servis kredisine dönüşür', coachSkip: 'Rehberi atla',
+    routing: 'Yönlendirme oranı: staking getirisinin bu kadarı servis kredisine dönüşür', coachSkip: 'Rehberi atla', watchKeeper: 'Keeper botunu izle',
+    'never held': 'hiç sağlanmadı', 'held {f}×, ran {o}×': '{f} kez sağlandı, {o} kez çalıştı', '{r} rejected': '{r} reddedildi', 'nothing bought': 'hiç alım yok',
     "Your first goal: buy 100 tokens when the presale opens. Rules do that. Press <b>Add rule</b>.": "İlk hedefin: ön satış açılınca 100 token almak. Bunu kurallar yapar. <b>Kural ekle</b>'ye bas.",
     "This rule is filled in for you: when the presale opens, buy 100 tokens. Read it, then press <b>Save rule</b>.": "Bu kural senin için dolduruldu: ön satış açılınca 100 token al. Oku, sonra <b>Kuralı kaydet</b>'e bas.",
     "The chain evaluates your rule at the end of every block. Press <b>Run</b> and watch block 12.": "Zincir kuralını her blok sonunda değerlendirir. <b>Çalıştır</b>'a bas ve 12. bloğu izle.",
@@ -67,7 +68,7 @@
   // notes with numbers inside: pattern, replacement
   root.RX_UI_TR_RX = [
     [/^bought (\S+) at (\S+)$/, '$1 adet $2 fiyattan alındı'], [/^bought (\S+)$/, '$1 adet alındı'], [/^sold (\S+) at (\S+)$/, '$1 adet $2 fiyattan satıldı'], [/^paid (\S+)$/, '$1 ödendi'], [/^published (\S+)$/, '$1 yayımlandı'], [/^closed at (\S+)$/, '$1 oranında kapatıldı'],
-    [/^(\d+) RLO kept$/, '$1 RLO hazinede kaldı'], [/^(\d+) publishes$/, '$1 yayım'], [/^(\d+) stale stretches$/, '$1 bayat aralık'], [/^(\d+) blocks under water$/, '$1 batık blok'], [/^(\d+) blocked attempts$/, '$1 engellenen deneme'], [/^(\d+) jobs missed$/, '$1 iş kaçırıldı'], [/^(\d+) payments without a fresh check$/, '$1 ödeme güncel kontrolsüz'],
+    [/^(\d+) RLO kept$/, '$1 RLO hazinede kaldı'], [/^(\d+) claims$/, '$1 alım'], [/^(\d+) tokens$/, '$1 token'], [/^(\d+) publishes$/, '$1 yayım'], [/^(\d+) stale stretches$/, '$1 bayat aralık'], [/^(\d+) blocks under water$/, '$1 batık blok'], [/^(\d+) blocked attempts$/, '$1 engellenen deneme'], [/^(\d+) jobs missed$/, '$1 iş kaçırıldı'], [/^(\d+) payments without a fresh check$/, '$1 ödeme güncel kontrolsüz'],
     [/^(\d+) publishes, (\d+) rebalances, (\d+) claims$/, '$1 yayım, $2 dengeleme, $3 ödül alımı'],
     [/^Sell all 10 ETH the first time the price closes under (\d+)$/, "Fiyat ilk kez $1'in altında kapanınca 10 ETH'nin hepsini sat"], [/^Buy at least 10 ETH back under (\d+)$/, "$1'in altında en az 10 ETH geri al"],
     [/^Pay the farmer 200 within five blocks of the first reading above 50 mm \(block (\d+)\)$/, "50 mm'yi aşan ilk ölçümden (blok $1) sonraki beş blok içinde çiftçiye 200 öde"],

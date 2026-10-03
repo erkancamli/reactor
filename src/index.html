@@ -275,7 +275,6 @@ input[type=number] { width: 110px; }
     <button class="btn" id="stepBtn" data-t="step">Step</button>
     <button class="btn quiet" id="resetBtn" data-t="reset">Reset</button>
     <span class="sp"></span>
-    <label class="mode"><input type="checkbox" id="keeperChk"> <span data-t="keeperMode">Keeper bot instead of the chain</span></label>
     <button class="btn quiet" id="speedBtn">1×</button>
   </div>
 </section>
@@ -306,9 +305,11 @@ input[type=number] { width: 110px; }
   <div class="stars" id="rStars"></div>
   <div class="goals" id="rGoals"></div>
   <div class="score" id="rScore"></div>
+  <div class="goals" id="rRules"></div>
   <div class="keeper" id="rKeeper"></div>
+  <div class="brief hint" id="rHintBox" hidden><button class="btn quiet" id="rHintBtn" data-t="hint">Show a hint</button><p id="rHint" hidden></p></div>
   <div class="msg" id="rPost"></div>
-  <div class="foot"><button class="btn quiet" id="rShare" data-t="share">Share on X</button><button class="btn" id="rRetry" data-t="retry">Edit rules</button><button class="btn primary" id="rNext" data-t="next">Next level</button></div>
+  <div class="foot"><button class="btn quiet" id="rKeeperBtn" data-t="watchKeeper">Watch the keeper bot</button><button class="btn quiet" id="rShare" data-t="share">Share on X</button><button class="btn" id="rRetry" data-t="retry">Edit rules</button><button class="btn primary" id="rNext" data-t="next">Next level</button></div>
 </div></div>
 
 <div class="sheet" id="howSheet" hidden><div class="pane">
@@ -629,7 +630,7 @@ $('howBtn').onclick = () => { $('howSheet').hidden = false; }; $('howOk').onclic
 
 // ---------- running ----------
 function compute() {
-  const lv = G.lv, legacy = $('keeperChk').checked; const seed = daySeed(dayKeyOf(Date.now())) + 17 * lv.id;
+  const lv = G.lv, legacy = !!G.keeperMode; const seed = daySeed(dayKeyOf(Date.now())) + 17 * lv.id;
   const bad = G.cards.map(c => T.validate(lv, c)).filter(p => p.length).length; if (bad) { toast(tr('Fix the rules marked red first')); return false; }
   G.res = T.runAll(lv, G.cards, { legacy, seed, routing: G.routing }); G.scen = 0; G.cur = -1; return true;
 }
@@ -657,7 +658,6 @@ $('runBtn').onclick = () => { if (G.playing) stopRun(); else play(); };
 $('stepBtn').onclick = () => { stopRun(); if (!G.res && !compute()) return; if (!stepBlock()) showResult(); };
 $('resetBtn').onclick = () => { stopRun(); G.res = null; G.cur = -1; G.scen = 0; renderAll(); };
 $('speedBtn').onclick = () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; $('speedBtn').textContent = speed + '×'; };
-$('keeperChk').onchange = () => { stopRun(); G.res = null; G.cur = -1; renderAll(); };
 
 // ---------- results ----------
 function showResult() {
@@ -674,6 +674,15 @@ function showResult() {
     if (chainRes.runs.length > 1) { const h = document.createElement('div'); h.className = 'mute'; h.textContent = scenT(lv, si); gb.appendChild(h); }
     r.goals.forEach((g, gi) => { const d = document.createElement('div'); d.className = 'goal ' + (g.ok ? 'ok' : 'bad'); d.innerHTML = `<span class="i">${g.ok ? '✓' : '✗'}</span><span>${goalT(lv, gi)}${g.note ? ' <span class="mute">(' + tr(g.note) + ')</span>' : ''}</span><span class="at">${g.at != null && g.par != null && g.par < lv.blocks ? tr('block {a}, par {p}', { a: g.at, p: g.par }) : ''}</span>`; gb.appendChild(d); });
   });
+  const rb = $('rRules'); rb.innerHTML = '';
+  G.cards.forEach((c, i) => {
+    const fired = chainRes.runs.reduce((n, r) => n + r.trace.filter(t => t.fired.some(f => f.card === i)).length, 0);
+    const ok = chainRes.runs.reduce((n, r) => n + r.trace.reduce((m, t) => m + t.executed.filter(e => e.card === i && e.result === 'ok').length, 0), 0);
+    const rej = chainRes.runs.reduce((n, r) => n + r.trace.reduce((m, t) => m + t.executed.filter(e => e.card === i && e.result !== 'ok').length, 0), 0);
+    const d = document.createElement('div'); d.className = 'goal'; d.innerHTML = `<span class="i mono">${i + 1}</span><span class="mono" style="font-size:13px">${condText(lv, c.when, i)} → ${actText(lv, c.then)}</span><span class="at">${fired === 0 ? tr('never held') : tr('held {f}×, ran {o}×', { f: fired, o: ok }) + (rej ? ', ' + tr('{r} rejected', { r: rej }) : '')}</span>`; rb.appendChild(d);
+  });
+  $('rHintBox').hidden = legacy || chainRes.all; $('rHint').hidden = true; $('rHintBtn').hidden = false; $('rHint').textContent = lvT(lv, 'hint');
+  $('rKeeperBtn').hidden = legacy;
   const r0 = chainRes.runs[0];
   $('rScore').innerHTML = `<span>${tr('score')} ${chainRes.score.toLocaleString('en-US')}</span>` + (lv.credits != null ? `<span>${tr('credits used')} ${Math.max(...chainRes.runs.map(x => x.used))} / ${lv.credits}${lv.creditsPar != null ? ' (' + tr('par') + ' ' + lv.creditsPar + ')' : ''}</span>` : '') + `<span>${tr('late by')} ${Math.max(...chainRes.runs.map(x => x.lateness))} ${tr('blocks')}</span>`;
   const kr = keeperRes.runs[0];
@@ -692,7 +701,9 @@ function showResult() {
   $('resultSheet').hidden = false;
   $('rShare').onclick = () => { const text = G.daily ? `Reactor daily ${G.daily}: ${lvT(lv, 'name').replace(' (daily)', '')} solved with ${G.cards.length} rule${G.cards.length === 1 ? '' : 's'}, score ${chainRes.score}. The chain reacted, no bot needed. A fan made puzzle game about @RialoHQ's reactive transactions.` : `Reactor level ${lv.id} ${lv.name}: ${starStr(chainRes.stars)} with ${G.cards.length} rule${G.cards.length === 1 ? '' : 's'}, score ${chainRes.score}. The chain reacted, no bot needed. A fan made puzzle game about @RialoHQ's reactive transactions.`; window.open('https://x.com/intent/post?text=' + encodeURIComponent(text + '\n' + location.origin + location.pathname), '_blank', 'noopener'); };
 }
-$('rRetry').onclick = () => { $('resultSheet').hidden = true; showCol('rules'); if (coach && coach.step === 2) coachAdvance(3); };
+$('rRetry').onclick = () => { $('resultSheet').hidden = true; G.keeperMode = false; showCol('rules'); if (coach && coach.step === 2) coachAdvance(3); };
+$('rHintBtn').onclick = () => { $('rHint').hidden = false; $('rHintBtn').hidden = true; };
+$('rKeeperBtn').onclick = () => { $('resultSheet').hidden = true; G.keeperMode = true; G.res = null; G.cur = -1; renderAll(); play(); };
 $('rNext').onclick = () => { $('resultSheet').hidden = true; const next = LV.LEVELS.find(l => l.id === G.lv.id + 1); if (next) openLevel(next); };
 function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') for (const id of ['editor', 'briefSheet', 'resultSheet', 'howSheet']) $(id).hidden = true; });
