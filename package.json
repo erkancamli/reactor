@@ -1,0 +1,15 @@
+{
+  "name": "reactor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reactor: a puzzle game about Rialo's reactive transactions. Write the rules, watch the chain react.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node test/devserver.mjs --debug",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
