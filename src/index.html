@@ -214,6 +214,8 @@ table.board{width:100%;border-collapse:collapse;font-size:14px}
 .codebox{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--ink);box-shadow:inset 0 0 0 1px var(--rail)}
 .codebox code{flex:1;font-family:var(--mono);font-size:13px;word-break:break-all;color:var(--paper)}
 .codebox .btn{min-height:38px;padding:8px 14px;font-size:14px}
+.flame{font-size:12px;color:var(--amber);font-family:var(--mono);margin-left:4px}
+@media (max-width:430px){.tabs button{padding:6px 9px;font-size:12px}}
 /* Kelvin */
 .herorow{display:flex;align-items:center;gap:14px}
 .kwrap{flex:0 0 auto;width:72px;height:86px}
@@ -297,7 +299,7 @@ input.name{width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--r
       <button class="mode" id="go-atlas"><h3 data-t="mode.atlas">Atlas</h3><p id="atlas-sub">…</p><span class="go" id="atlas-go">0%</span></button>
     </div>
     <section class="section">
-      <div class="row spread"><h2 data-t="board.title">Leaderboard</h2><div class="tabs" id="board-tabs"><button data-which="today" class="on" data-t="board.today">Today</button><button data-which="week" data-t="board.week">This week</button><button data-which="all" data-t="board.all">All time</button></div></div>
+      <div class="row spread"><h2 data-t="board.title">Leaderboard</h2><div class="tabs" id="board-tabs"><button data-which="today" class="on" data-t="board.today">Today</button><button data-which="week" data-t="board.week">This week</button><button data-which="all" data-t="board.all">All time</button><button data-which="sprint" data-t="board.sprint">Sprint</button></div></div>
       <div id="board"></div>
     </section>
     <p class="rankline" id="rankline" hidden></p>

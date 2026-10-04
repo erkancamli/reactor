@@ -7,7 +7,9 @@ Reactor is a fan made knowledge game about [Rialo](https://rialo.io). Every ques
 ## Modes
 
 - **Daily Block.** Twelve questions, the same for everyone, once a day per player name. Right answers fill your block with transactions, wrong ones leave noise. The clock runs on the server and the score is computed there, so the board is honest. Daily, weekly and all time leaderboards; ranks cool down as your total grows, a nod to Subzero Labs and to kelvin (Ambient, Frost at 2,000, Subzero at 8,000, Zero Kelvin at 20,000).
-- **Sprint.** Ninety seconds of rapid questions, played on the device. Best score kept locally.
+- **Sprint.** Ninety seconds of rapid questions, as many rounds as you like. With a player name it is refereed by the server (questions served one at a time, clock and score kept there) and ranked on a weekly Sprint board; without a name it plays unranked on the device.
+- **Replay.** A finished Daily Block can be replayed unranked to practise the misses.
+- **Block streak.** Consecutive days with a finished Daily Block, shown on the boards.
 - **Atlas.** Study by topic with no clock. Mastery counts the questions you have answered right at least once.
 
 ## Mechanics borrowed from Rialo

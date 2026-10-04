@@ -24,7 +24,7 @@
       'daily.done': 'Block #{n} finalized: {score} points, {ok} of {total} right.',
       'daily.noname': 'Block #{n}. Save a player name to start, the board needs it.',
       'daily.play': 'Play', 'daily.resume': 'Resume', 'daily.see': 'Result',
-      'sprint.sub': 'Ninety seconds, as many questions as you can. Best so far: {best}.', 'sprint.sub0': 'Ninety seconds, as many questions as you can. No name needed.',
+      'sprint.sub': 'Ninety seconds, as many questions as you can, as often as you like. Your best this week: {best}.', 'sprint.sub0': 'Ninety seconds, as many questions as you can, as often as you like. Ranked weekly.', 'sprint.local': 'Playing unranked. Save a name to get on the Sprint board.', 'sprint.rank': 'Sprint board this week: <b>#{rank}</b>, your best {best}.', 'board.sprint': 'Sprint', 'board.empty.sprint': 'No Sprint scores this week yet.', 'practice': 'Replay unranked', 'play.practice': 'Replay, no points', 'res.practice.title': 'Replay done', 'res.practice.sub': '{ok} of {n} right this time. Your ranked score stays as it was.', 'streak.days': '{n} days in a row', 'rank.streak': ' Block streak: <b>{n} days</b>.',
       'atlas.sub.home': 'Study by topic, no clock, every answer with its source. {n} of {total} questions mastered.',
       'board.title': 'Leaderboard', 'board.today': 'Today', 'board.week': 'This week', 'board.all': 'All time',
       'board.empty.today': 'Nobody has finalized today\'s block yet. Be the first.', 'board.empty.week': 'The week board fills as blocks are finalized.', 'board.empty.all': 'No scores yet.',
@@ -63,7 +63,7 @@
       'daily.done': 'Blok #{n} tamamlandı: {score} puan, {total} sorudan {ok} doğru.',
       'daily.noname': 'Blok #{n}. Başlamak için bir oyuncu adı kaydet, tablo buna ihtiyaç duyuyor.',
       'daily.play': 'Oyna', 'daily.resume': 'Devam et', 'daily.see': 'Sonuç',
-      'sprint.sub': 'Doksan saniyede yetiştiğin kadar soru. En iyin: {best}.', 'sprint.sub0': 'Doksan saniyede yetiştiğin kadar soru. İsim gerekmez.',
+      'sprint.sub': 'Doksan saniyede yetiştiğin kadar soru, istediğin kadar tur. Bu haftaki en iyin: {best}.', 'sprint.sub0': 'Doksan saniyede yetiştiğin kadar soru, istediğin kadar tur. Haftalık sıralama var.', 'sprint.local': 'Sıralamasız oynuyorsun. Sprint tablosuna girmek için bir isim kaydet.', 'sprint.rank': 'Bu haftaki Sprint tablosunda <b>#{rank}</b>, en iyin {best}.', 'board.sprint': 'Sprint', 'board.empty.sprint': 'Bu hafta henüz Sprint skoru yok.', 'practice': 'Puansız tekrar çöz', 'play.practice': 'Tekrar, puansız', 'res.practice.title': 'Tekrar bitti', 'res.practice.sub': 'Bu sefer {n} sorudan {ok} doğru. Sıralamadaki skorun değişmedi.', 'streak.days': 'art arda {n} gün', 'rank.streak': ' Blok serin: <b>{n} gün</b>.',
       'atlas.sub.home': 'Konu konu çalış, süre yok, her cevabın kaynağı var. {total} sorudan {n} tanesini öğrendin.',
       'board.title': 'Liderlik tablosu', 'board.today': 'Bugün', 'board.week': 'Bu hafta', 'board.all': 'Tüm zamanlar',
       'board.empty.today': 'Bugünün bloğunu henüz kimse tamamlamadı. İlk sen ol.', 'board.empty.week': 'Haftalık tablo bloklar tamamlandıkça dolar.', 'board.empty.all': 'Henüz skor yok.',
@@ -114,7 +114,8 @@
 <li><b>Filter.</b> Once per block, drop two wrong options. Rialo's Stream filters noise out of market data; you filter noise out of the choices.</li>
 <li><b>Handover.</b> Once per block, skip a question with no penalty and keep your streak, like a transaction carried across a Gauss handover.</li>
 <li><b>Streak.</b> Each consecutive right answer adds 10% to the next one, up to 50%. Fast answers earn up to 50% extra.</li>
-<li><b>Sprint</b> is ninety seconds of rapid questions, played on this device. <b>Atlas</b> is topic study with no clock.</li>
+<li><b>Sprint</b> is ninety seconds of rapid questions, as many rounds as you like, with its own weekly board. A wrong answer costs 50 and your streak. <b>Atlas</b> is topic study with no clock.</li>
+<li>After your Daily Block you can <b>replay it unranked</b> to practise the ones you missed. Finish a block every day to grow your <b>block streak</b>.</li>
 </ul>
 <p>Ranks cool down as your total grows, a nod to Subzero Labs and to kelvin, Rialo's base unit: Ambient, Frost at 2,000, Subzero at 8,000, Zero Kelvin at 20,000.</p>`,
     tr: `<h2>Nasıl oynanır</h2>
@@ -126,7 +127,8 @@
 <li><b>Filtre.</b> Blok başına bir kez iki yanlış şıkkı ele. Rialo'nun Stream'i piyasa verisindeki gürültüyü filtreler, sen şıklardaki gürültüyü.</li>
 <li><b>Devir.</b> Blok başına bir kez bir soruyu cezasız geç, serin bozulmaz; Gauss devrinde taşınan bir işlem gibi.</li>
 <li><b>Seri.</b> Art arda her doğru cevap sonrakine %10 ekler, en fazla %50. Hızlı cevap %50'ye kadar ek puan getirir.</li>
-<li><b>Sprint</b> doksan saniyelik hızlı soru turu, bu cihazda oynanır. <b>Atlas</b> süresiz konu çalışması.</li>
+<li><b>Sprint</b> doksan saniyelik hızlı soru turu; istediğin kadar oynarsın, kendi haftalık tablosu var. Yanlış cevap 50 puan ve serini götürür. <b>Atlas</b> süresiz konu çalışması.</li>
+<li>Günün Bloğu bitince yanlışlarını çalışmak için <b>puansız tekrar</b> çözebilirsin. Her gün bir blok bitirirsen <b>blok serin</b> büyür.</li>
 </ul>
 <p>Seviyeler toplam puan arttıkça soğur; Subzero Labs'e ve Rialo'nun temel birimi kelvin'e bir selam: Ambient, 2.000'de Frost, 8.000'de Subzero, 20.000'de Zero Kelvin.</p>`,
   };
@@ -224,17 +226,18 @@
         if (m.today && m.today.done) { $('daily-sub').textContent = t('daily.done', { n, score: fmt(m.today.score), ok: m.today.cells.filter((c) => c === 'ok').length, total: DAILY_N }); $('daily-go').textContent = t('daily.see'); drawBlock($('home-block'), m.today.cells, DAILY_N, -1); }
         else if (m.today) { $('daily-sub').textContent = t('daily.progress', { n, i: m.today.i + 1, total: DAILY_N }); $('daily-go').textContent = t('daily.resume'); drawBlock($('home-block'), m.today.cells, DAILY_N, m.today.i); }
         $('rankline').hidden = false;
-        $('rankline').innerHTML = t('rank.line', { rank: m.rank, total: fmt(m.total) }) + (m.next ? t('rank.next', { left: fmt(m.next.left), next: m.next.name }) : '');
+        $('rankline').innerHTML = t('rank.line', { rank: m.rank, total: fmt(m.total) }) + (m.next ? t('rank.next', { left: fmt(m.next.left), next: m.next.name }) : '') + (m.dayStreak >= 1 ? t('rank.streak', { n: m.dayStreak }) : '');
+        if (m.sprintBest) $('sprint-sub').textContent = t('sprint.sub', { best: fmt(m.sprintBest) });
       }).catch(() => {});
     }
-    const best = LS.get('sprintBest', 0);
-    $('sprint-sub').textContent = best ? t('sprint.sub', { best: fmt(best) }) : t('sprint.sub0');
+    $('sprint-sub').textContent = t('sprint.sub0');
     loadBank().then((b) => {
       const mastered = LS.get('mastered', {}); const m = b.questions.filter((q) => mastered[q.id]).length;
       $('atlas-sub').textContent = t('atlas.sub.home', { n: m, total: b.questions.length }); $('atlas-go').textContent = Math.round((100 * m) / b.questions.length) + '%';
     }).catch(() => { $('atlas-sub').textContent = t('bank.loading'); });
     renderBoard();
   }
+  const flame = (n) => (n >= 2 ? ` <span class="flame" title="${esc(t('streak.days', { n }))}">🔥${n}</span>` : '');
   async function renderBoard() {
     document.querySelectorAll('#board-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.which === board.which));
     const el = $('board');
@@ -242,7 +245,7 @@
       const data = board.cache[board.which] || (board.cache[board.which] = await api('/api/board?which=' + board.which));
       if (!data.rows.length) { el.innerHTML = `<p class="empty">${t('board.empty.' + board.which)}</p>`; return; }
       const mine = me ? me.handle.toLowerCase() : null;
-      el.innerHTML = '<table class="board">' + data.rows.map((r, i) => `<tr class="${mine && r.handle.toLowerCase() === mine ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.handle)}${board.which === 'today' ? ` <span class="mute">${r.correct}/${DAILY_N}</span>` : board.which === 'all' ? ` <span class="mute">${esc(r.rank || '')}</span>` : ` <span class="mute">${r.days || 1}${lang === 'tr' ? ' gün' : 'd'}</span>`}</td><td>${fmt(r.score)}</td></tr>`).join('') + '</table>';
+      el.innerHTML = '<table class="board">' + data.rows.map((r, i) => `<tr class="${mine && r.handle.toLowerCase() === mine ? 'me' : ''}"><td>${i + 1}</td><td>${esc(r.handle)}${board.which === 'today' ? ` <span class="mute">${r.correct}/${DAILY_N}</span>${flame(r.days)}` : board.which === 'all' ? ` <span class="mute">${esc(r.rank || '')}</span>${flame(r.days)}` : board.which === 'sprint' ? ` <span class="mute">${r.correct}/${r.answered}</span>` : ` <span class="mute">${r.days || 1}${lang === 'tr' ? ' gün' : 'd'}</span>`}</td><td>${fmt(r.score)}</td></tr>`).join('') + '</table>';
     } catch { el.innerHTML = `<p class="empty">${t('board.err')}</p>`; }
   }
   document.querySelectorAll('#board-tabs button').forEach((b) => (b.onclick = () => { board.which = b.dataset.which; renderBoard(); }));
@@ -350,7 +353,8 @@
     $('play-streak').textContent = session.streak >= 2 ? `×${(1 + Math.min(STREAK_MAX, STREAK_STEP * session.streak)).toFixed(1)} ` : '';
     if (daily) $('play-label').textContent = t('play.daily', { n: session.number }) + ' · ' + t('q.of', { i: session.i + 1, n: session.n });
     else if (session.mode === 'atlas') $('play-label').textContent = t('play.atlas', { topic: topicName(session.topic) }) + ' · ' + t('q.of', { i: session.i + 1, n: session.n });
-    drawBlock($('play-block'), session.cells, session.n, session.i);
+    else if (session.mode === 'practice') $('play-label').textContent = t('play.practice') + ' · #' + session.number + ' · ' + t('q.of', { i: session.i + 1, n: session.n });
+    if (session.mode === 'sprint') drawBlock($('play-block'), session.cells, 12, session.i % 12); else drawBlock($('play-block'), session.cells, session.n, session.i);
     session.question = q; session.shownAt = Date.now();
     if (!opts.keepTimer) {
       if (daily) startTimer(q.limit * 1000, opts.remainingMs ?? q.limit * 1000, () => answer(null, true));
@@ -421,7 +425,22 @@
     session.busy = true; stopTimer(); lockAnswers();
     const q = session.question;
     try {
-      if (session.mode === 'daily') {
+      if (session.mode === 'sprint' && session.ranked) {
+        const r = await api('/api/sprint/answer', { run: session.run, key: me.key, i: session.i, answer: given });
+        if (r.done && r.reveal === undefined) { finishRankedSprint(r.result); session && (session.busy = false); return; }
+        session.score = r.score; session.streak = r.streak; session.bestStreak = Math.max(session.bestStreak, r.streak);
+        session.cells[session.i % 12] = r.correct ? 'ok' : 'x'; landCell($('play-block'), session.i % 12, r.correct ? 'ok' : 'x');
+        session.answers.push({ correct: r.correct, gain: r.gain, penalty: r.penalty, view: q, reveal: r.reveal });
+        showFeedback(q, given, r.reveal, r);
+        session.pending = r;
+        session.autoNext = setTimeout(() => next(), r.correct ? 1500 : 3200);
+      } else if (session.mode === 'practice') {
+        const rev = q.reveal, correct = q.type === 'order' ? JSON.stringify(given) === JSON.stringify(rev.correct) : given === rev.correct;
+        session.streak = correct ? session.streak + 1 : 0; session.bestStreak = Math.max(session.bestStreak, session.streak);
+        session.cells[session.i] = correct ? 'ok' : 'x'; landCell($('play-block'), session.i, correct ? 'ok' : 'x');
+        session.answers.push({ correct, gain: 0, penalty: 0, view: q, reveal: rev });
+        showFeedback(q, given, rev, { correct, gain: 0, penalty: 0 });
+      } else if (session.mode === 'daily') {
         const r = await api('/api/daily/answer', { run: session.run, key: me.key, i: session.i, answer: given, stake: session.stake });
         session.score = r.score; session.streak = r.streak;
         const state = r.skipped ? 'skip' : r.correct ? 'ok' : 'x'; session.cells[session.i] = state; landCell($('play-block'), session.i, state);
@@ -437,7 +456,7 @@
         session.score = Math.max(0, session.score + gain - penalty);
         session.streak = correct ? session.streak + 1 : 0; session.bestStreak = Math.max(session.bestStreak, session.streak);
         const rev = reveal(q.raw, q.tr, q.perm, bank);
-        session.cells[session.i] = correct ? 'ok' : 'x'; landCell($('play-block'), session.i, correct ? 'ok' : 'x');
+        const ci = session.mode === 'sprint' ? session.i % 12 : session.i; session.cells[ci] = correct ? 'ok' : 'x'; landCell($('play-block'), ci, correct ? 'ok' : 'x');
         if (correct) { const m = LS.get('mastered', {}); m[q.id] = true; LS.set('mastered', m); }
         session.answers.push({ id: q.id, type: q.type, topic: q.topic, diff: q.diff, correct, gain, penalty, elapsedMs, reveal: rev, view: q, answer: given });
         showFeedback(q, given, rev, { correct, gain, penalty, timeout });
@@ -461,9 +480,18 @@
       renderQuestion(r.question, { remainingMs: r.remainingMs });
       return;
     }
+    if (session.mode === 'sprint' && session.ranked) {
+      const r = session.pending; session.pending = null; if (!r) return;
+      if (r.done || session.ended) { finishRankedSprint(r.result); return; }
+      session.i = r.i; if (session.i % 12 === 0) session.cells = [];
+      renderQuestion(r.question, { keepTimer: true });
+      return;
+    }
     session.i += 1;
+    if (session.mode === 'practice') { if (session.i >= session.n) { showPracticeResult(); return; } renderQuestion(session.queue[session.i]); return; }
     if (session.mode === 'sprint') {
       if (session.ended || session.i >= session.queue.length) { endSprint(); return; }
+      if (session.i % 12 === 0) session.cells = [];
       renderQuestion(session.queue[session.i], { keepTimer: true });
       return;
     }
@@ -522,9 +550,11 @@
     $('result-stats').innerHTML = stat(fmt(res.score), t('st.score')) + stat(res.bestStreak, t('st.streak')) + stat(mmss(res.timeMs), t('st.time'));
     $('result-rank').innerHTML = res.rank ? t('rank.today', { rank: res.rank, total: fmt(res.total || 0), title: rankFor(res.total || 0) }) : '';
     const text = t('share.text', { n: res.number, line: res.line, ok: res.correct, total: res.n, score: fmt(res.score), url: location.origin });
-    $('result-actions').innerHTML = `<a class="btn solid" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(text)}">${t('share.x')}</a><button class="btn quiet" id="copy-btn">${t('share.copy')}</button><button class="btn quiet" id="home-btn">${t('home')}</button>`;
+    $('result-actions').innerHTML = `<a class="btn solid" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(text)}">${t('share.x')}</a><button class="btn quiet" id="copy-btn">${t('share.copy')}</button><button class="btn quiet" id="practice-btn">${t('practice')}</button><button class="btn quiet" id="home-btn">${t('home')}</button>`;
     $('copy-btn').onclick = () => navigator.clipboard.writeText(text).then(() => toast(t('copied')));
     $('home-btn').onclick = () => renderHome();
+    $('practice-btn').onclick = () => startPractice(res);
+    if (res.dayStreak >= 2) $('result-rank').innerHTML += t('rank.streak', { n: res.dayStreak });
     renderReview(res.answers);
   }
   const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
@@ -540,6 +570,46 @@
       const cls = a.skipped ? 'skip' : a.correct ? 'ok' : 'x';
       return `<div class="rv ${cls}"><i></i><div><div class="q">${esc(qtext)}</div><div class="a"><b>${esc(ans)}</b>${a.gain ? ` <span class="mono">+${fmt(a.gain)}</span>` : a.penalty ? ` <span class="mono">−${fmt(a.penalty)}</span>` : ''}</div><a href="${esc(rev.url)}" target="_blank" rel="noopener">${esc(rev.title)}</a></div></div>`;
     }).join('');
+  }
+
+  // ---------- unranked replay of a finished Daily Block ----------
+  function startPractice(res) {
+    const queue = res.answers.filter((a) => a.view && a.reveal).map((a) => ({ ...a.view, reveal: a.reveal }));
+    session = { mode: 'practice', number: res.number, n: queue.length, i: 0, score: 0, streak: 0, bestStreak: 0, cells: [], answers: [], queue, res };
+    show('play'); $('tools').hidden = true; stopTimer(); $('timer').querySelector('i').style.transform = 'scaleX(0)';
+    renderQuestion(queue[0]);
+  }
+  function showPracticeResult() {
+    const s = session; session = null;
+    const ok = s.answers.filter((a) => a.correct).length;
+    show('result'); drawBlock($('result-block'), s.cells, s.n, -1);
+    $('result-kelvin').innerHTML = kelvin(ok >= 10 ? 'happy' : 'think');
+    $('result-title').textContent = t('res.practice.title'); $('result-sub').textContent = t('res.practice.sub', { ok, n: s.n });
+    $('result-stats').innerHTML = stat(ok + '/' + s.n, t('st.correct')) + stat(s.bestStreak, t('st.streak')) + stat('#' + s.number, t('mode.daily'));
+    $('result-rank').innerHTML = '';
+    $('result-actions').innerHTML = `<button class="btn solid" id="again-btn">${t('practice')}</button><button class="btn quiet" id="home-btn">${t('home')}</button>`;
+    $('again-btn').onclick = () => startPractice(s.res); $('home-btn').onclick = () => renderHome();
+    renderReview(s.answers.filter((a) => !a.correct));
+  }
+  // ---------- ranked Sprint result ----------
+  async function finishRankedSprint(result) {
+    if (!session || session.mode !== 'sprint' || session.finishing) return;
+    session.finishing = true; stopTimer(); clearTimeout(session.autoNext);
+    const s = session;
+    if (!result) { try { result = (await api('/api/sprint/finish', { run: s.run, key: me.key })).result; } catch (e) { toast(trErr(e.message) || t('err.generic')); result = { score: s.score, correct: s.answers.filter((a) => a.correct).length, answered: s.answers.length, bestStreak: s.bestStreak, answers: s.answers }; } }
+    session = null; board.cache = {};
+    show('result');
+    drawBlock($('result-block'), (result.answers || []).slice(-24).map((a) => (a.correct ? 'ok' : 'x')), Math.max(12, Math.min(24, (result.answers || []).length)), -1);
+    const isBest = result.best != null && result.score >= result.best && result.score > 0;
+    $('result-kelvin').innerHTML = kelvin(isBest ? 'happy' : result.correct >= result.answered / 2 ? 'idle' : 'noise');
+    $('result-title').textContent = t('res.sprint.title') + (isBest ? ' · ' + t('res.sprint.best') : '');
+    $('result-sub').textContent = t('res.sprint.sub', { answered: result.answered, ok: result.correct });
+    $('result-stats').innerHTML = stat(fmt(result.score), t('st.score')) + stat(result.bestStreak, t('st.streak')) + stat(fmt(result.best || result.score), lang === 'tr' ? 'haftanın en iyisi' : 'best this week');
+    $('result-rank').innerHTML = result.rank ? t('sprint.rank', { rank: result.rank, best: fmt(result.best || result.score) }) : '';
+    const text = t('share.sprint', { score: fmt(result.score), ok: result.correct, answered: result.answered, url: location.origin });
+    $('result-actions').innerHTML = `<button class="btn solid" id="again-btn">${t('again')}</button><a class="btn quiet" target="_blank" rel="noopener" href="https://x.com/intent/post?text=${encodeURIComponent(text)}">${t('share.x')}</a><button class="btn quiet" id="home-btn">${t('home')}</button>`;
+    $('again-btn').onclick = () => $('go-sprint').click(); $('home-btn').onclick = () => renderHome();
+    renderReview((result.answers || []).filter((a) => !a.correct));
   }
 
   // ---------- local questions (sprint, atlas) ----------
@@ -561,7 +631,18 @@
     $('q-kind').textContent = ''; $('q-dots').innerHTML = ''; $('q-topic').textContent = '';
     $('q-text').textContent = t('sprint.intro'); $('q-quote').hidden = true; $('q-hint').hidden = true;
     $('q-answers').className = 'answers'; $('q-answers').innerHTML = `<button class="ans" id="sprint-start" style="justify-content:center;font-weight:600">${t('sprint.go')}</button>`;
-    $('sprint-start').onclick = () => {
+    if (!me) { $('q-hint').innerHTML = t('sprint.local'); $('q-hint').hidden = false; }
+    $('sprint-start').onclick = async () => {
+      if (me) {
+        try {
+          const r = await api('/api/sprint/start', { handle: me.handle, key: me.key });
+          Object.assign(session, { ranked: true, run: r.run, i: 0, queue: null });
+          session.startedAt = Date.now();
+          startTimer(r.seconds * 1000, r.seconds * 1000, () => { session.ended = true; if ($('feedback').hidden && !session.busy) { stopTimer(); finishRankedSprint(); } });
+          renderQuestion(r.question, { keepTimer: true });
+          return;
+        } catch (e) { toast(trErr(e.message) || t('err.generic')); return; }
+      }
       session.startedAt = Date.now();
       startTimer(SPRINT_SECONDS * 1000, SPRINT_SECONDS * 1000, () => { session.ended = true; if ($('feedback').hidden) { stopTimer(); endSprint(); } else { clearTimeout(session.autoNext); setTimeout(endSprint, 800); } });
       renderQuestion(session.queue[0], { keepTimer: true });

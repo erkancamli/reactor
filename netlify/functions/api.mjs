@@ -74,19 +74,20 @@ function settle(run, { correct, timeout, skipped, answer, elapsedMs, stake }) {
 async function finishRun(store, run, now) {
   run.done = true; run.finishedAt = new Date(now).toISOString();
   const row = { handle: run.handle, score: run.score, correct: run.answers.filter((a) => a.correct).length, streak: run.bestStreak, at: run.finishedAt };
-  await upsert(store, `board/daily/${run.day}`, row, false);
   // totals live on the player's record so every player keeps a full history, boards are the top slice
   const uKey = `user/${run.handle.toLowerCase()}`;
   const user = (await store.get(uKey, { type: 'json' })) || { handle: run.handle };
   user.total = (user.total || 0) + run.score; user.played = (user.played || 0) + 1;
   user.weeks = user.weeks || {}; const wk = R.weekKeyOf(Date.parse(run.day + 'T12:00:00Z')); user.weeks[wk] = (user.weeks[wk] || 0) + run.score;
+  user.dayStreak = R.nextDayStreak(user.lastDay, user.dayStreak, run.day); user.bestDayStreak = Math.max(user.bestDayStreak || 0, user.dayStreak);
   user.lastDay = run.day;
   await store.setJSON(uKey, user);
+  row.days = user.dayStreak; await upsert(store, `board/daily/${run.day}`, row, true);
   await upsert(store, `board/week/${wk}`, { handle: run.handle, score: user.weeks[wk], days: Object.keys(user.weeks).length, at: run.finishedAt }, true);
-  await upsert(store, 'board/all', { handle: run.handle, score: user.total, played: user.played, rank: R.rankFor(user.total), at: run.finishedAt }, true);
+  await upsert(store, 'board/all', { handle: run.handle, score: user.total, played: user.played, rank: R.rankFor(user.total), days: user.dayStreak, at: run.finishedAt }, true);
   const b = await readBoard(store, `board/daily/${run.day}`);
   run.rank = b.rows.findIndex((r) => r.handle.toLowerCase() === run.handle.toLowerCase()) + 1 || null;
-  run.total = user.total;
+  run.total = user.total; run.dayStreak = user.dayStreak;
 }
 // one row per name; replace=true overwrites (running totals), otherwise keep the better score
 async function upsert(store, key, row, replace) {
@@ -159,6 +160,7 @@ export async function handle(req, { store, ip, secret, adminToken, now = Date.no
   if (path.endsWith('/api/board')) {
     const which = url.searchParams.get('which') || 'today';
     if (which === 'all') return json({ which, rows: (await readBoard(store, 'board/all')).rows.slice(0, SHOW) });
+    if (which === 'sprint') { const wk = R.weekKeyOf(now); return json({ which, week: wk, rows: (await readBoard(store, `board/sprint/${wk}`)).rows.slice(0, SHOW) }); }
     if (which === 'week') { const wk = R.weekKeyOf(now); return json({ which, week: wk, rows: (await readBoard(store, `board/week/${wk}`)).rows.slice(0, SHOW) }); }
     const day = R.isDay(url.searchParams.get('day')) ? url.searchParams.get('day') : R.dayKeyOf(now);
     return json({ which: 'today', day, number: R.dailyNumber(day), rows: (await readBoard(store, `board/daily/${day}`)).rows.slice(0, SHOW) });
@@ -171,7 +173,67 @@ export async function handle(req, { store, ip, secret, adminToken, now = Date.no
     const day = R.dayKeyOf(now);
     const ref = await store.get(`daily/${day}/${h.toLowerCase()}`, { type: 'json' });
     const run = ref ? await store.get(`run/${ref.run}`, { type: 'json' }) : null;
-    return json({ handle: user.handle, total: user.total || 0, played: user.played || 0, rank: R.rankFor(user.total || 0), next: R.nextRank(user.total || 0), day, number: R.dailyNumber(day), today: run ? { run: ref.run, done: !!run.done, i: run.i, score: run.score, cells: run.answers.map((x) => (x.skipped ? 'skip' : x.correct ? 'ok' : 'x')) } : null });
+    const alive = user.lastDay && (user.lastDay === day || user.lastDay === R.dayKeyOf(now - 86400000));
+    const sprintBest = ((await readBoard(store, `board/sprint/${R.weekKeyOf(now)}`)).rows.find((r) => r.handle.toLowerCase() === user.handle.toLowerCase()) || {}).score || 0;
+    return json({ dayStreak: alive ? user.dayStreak || 0 : 0, bestDayStreak: user.bestDayStreak || 0, sprintBest, handle: user.handle, total: user.total || 0, played: user.played || 0, rank: R.rankFor(user.total || 0), next: R.nextRank(user.total || 0), day, number: R.dailyNumber(day), today: run ? { run: ref.run, done: !!run.done, i: run.i, score: run.score, cells: run.answers.map((x) => (x.skipped ? 'skip' : x.correct ? 'ok' : 'x')) } : null });
+  }
+
+  // ---------- ranked Sprint: 90 seconds, questions served one at a time, scored here ----------
+  if (path.endsWith('/api/sprint/start')) {
+    if (req.method !== 'POST') return json({ error: 'Use POST.' }, 405);
+    const b = await body(); if (!b) return json({ error: 'Bad request.' }, 400);
+    const a = await auth(store, b); if (a.err) return a.err;
+    const rlKey = `rl/sprint/${a.lower}`;
+    const last = await store.get(rlKey, { type: 'json' });
+    if (last && now - last.at < 5000) return json({ error: 'Slow down a little, then try again.' }, 429);
+    await store.setJSON(rlKey, { at: now });
+    const id = crypto.randomBytes(12).toString('base64url');
+    const pool = BANK.questions.filter((q) => q.type === 'mcq' || q.type === 'fill' || q.type === 'noise').map((q) => q.id).sort();
+    const qids = R.shuffled(pool, R.hash32(id + '|sprint')).slice(0, 80);
+    const run = { id, kind: 'sprint', handle: a.handle, qids, i: 0, score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, startedAt: now, servedAt: now, done: false, answers: [] };
+    const q = byId.get(qids[0]);
+    await store.setJSON(`sprint/${id}`, run);
+    return json({ ok: true, run: id, seconds: R.SPRINT_SECONDS, i: 0, question: R.publicView(q, trById.get(q.id), R.permFor(id, q.id, R.optionCount(q)), id) });
+  }
+  if (path.endsWith('/api/sprint/answer') || path.endsWith('/api/sprint/finish')) {
+    if (req.method !== 'POST') return json({ error: 'Use POST.' }, 405);
+    const b = await body(); if (!b) return json({ error: 'Bad request.' }, 400);
+    const runId = String(b.run || '').replace(/[^A-Za-z0-9_-]/g, '');
+    const run = await store.get(`sprint/${runId}`, { type: 'json' });
+    if (!run) return json({ error: 'Unknown run.' }, 404);
+    const user = await store.get(`user/${run.handle.toLowerCase()}`, { type: 'json' });
+    if (!user || !b.key || !safeEqual(user.keyHash, hashKey(b.key))) return json({ error: 'This run belongs to another player.' }, 403);
+    const over = now > run.startedAt + R.SPRINT_SECONDS * 1000 + R.SPRINT_GRACE_MS;
+    const finishSprint = async () => {
+      if (!run.done) {
+        run.done = true; run.finishedAt = new Date(now).toISOString();
+        const wk = R.weekKeyOf(run.startedAt);
+        await upsert(store, `board/sprint/${wk}`, { handle: run.handle, score: run.score, correct: run.correct, answered: run.answered, at: run.finishedAt }, false);
+        const bd = await readBoard(store, `board/sprint/${wk}`);
+        const mine = bd.rows.findIndex((r) => r.handle.toLowerCase() === run.handle.toLowerCase());
+        run.rank = mine + 1 || null; run.best = mine >= 0 ? bd.rows[mine].score : run.score;
+        await store.setJSON(`sprint/${run.id}`, run);
+      }
+      return { done: true, result: { score: run.score, correct: run.correct, answered: run.answered, bestStreak: run.bestStreak, rank: run.rank, best: run.best, answers: run.answers } };
+    };
+    if (path.endsWith('/api/sprint/finish') || run.done || over) return json({ ok: true, ...(await finishSprint()) });
+    if (int(b.i) !== run.i) return json({ error: 'Out of step. Reload the page.', i: run.i }, 409);
+    const q = byId.get(run.qids[run.i]);
+    const perm = R.permFor(run.id, q.id, R.optionCount(q));
+    const correct = R.isCorrect(q, b.answer, perm);
+    const elapsedMs = Math.max(0, now - run.servedAt);
+    const p = R.points({ type: q.type, diff: q.diff, correct, stake: 1, streak: run.streak, elapsedMs: Math.min(elapsedMs, R.LIMITS[q.type] * 1000) });
+    const gain = p.gain, penalty = correct ? 0 : R.SPRINT_WRONG;
+    run.score = Math.max(0, run.score + gain - penalty); run.answered += 1;
+    if (correct) { run.correct += 1; run.streak += 1; run.bestStreak = Math.max(run.bestStreak, run.streak); } else run.streak = 0;
+    const rev = R.reveal(q, trById.get(q.id), perm, BANK);
+    run.answers.push({ id: q.id, type: q.type, correct, gain, penalty, view: R.publicView(q, trById.get(q.id), perm, run.id), reveal: rev });
+    run.i += 1;
+    if (run.i >= run.qids.length) { await store.setJSON(`sprint/${run.id}`, run); return json({ ok: true, correct, gain, penalty, score: run.score, streak: run.streak, reveal: rev, ...(await finishSprint()) }); }
+    const nq = byId.get(run.qids[run.i]);
+    run.servedAt = now;
+    await store.setJSON(`sprint/${run.id}`, run);
+    return json({ ok: true, correct, gain, penalty, score: run.score, streak: run.streak, reveal: rev, i: run.i, question: R.publicView(nq, trById.get(nq.id), R.permFor(run.id, nq.id, R.optionCount(nq)), run.id), leftMs: Math.max(0, run.startedAt + R.SPRINT_SECONDS * 1000 - now) });
   }
 
   if (path.endsWith('/api/daily/run')) {
@@ -291,4 +353,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = { path: ['/api/register', '/api/login', '/api/admin/rekey', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run'] };
+export const config = { path: ['/api/register', '/api/login', '/api/admin/rekey', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run', '/api/sprint/start', '/api/sprint/answer', '/api/sprint/finish'] };

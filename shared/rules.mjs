@@ -18,6 +18,10 @@ export const GRACE_MS = 2500;                      // network slack accepted aft
 // ranks cool down as the total grows: a nod to Subzero Labs and to kelvin, Rialo's base unit
 export const RANKS = [[0, 'Ambient'], [2000, 'Frost'], [8000, 'Subzero'], [20000, 'Zero Kelvin']];
 export const SPRINT_SECONDS = 90;
+export const SPRINT_WRONG = 50;      // a wrong Sprint answer costs this and the streak
+export const SPRINT_GRACE_MS = 3000; // answers that arrive this long after the 90 seconds are not counted
+// day streak: consecutive days with a finalized Daily Block
+export function nextDayStreak(lastDay, streak, day) { if (lastDay === day) return streak || 1; const prev = dayKeyOf(Date.parse(day + 'T12:00:00Z') - 86400000); return lastDay === prev ? (streak || 0) + 1 : 1; }
 
 // ---------- deterministic randomness ----------
 export function hash32(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }

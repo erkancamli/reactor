@@ -138,3 +138,36 @@ test('api: owner can issue a new device code for a lost one', async () => {
   assert.equal(r.status, 200);
   const s = await call(store, '/api/daily/start', { handle: 'ecamli', key: r.body.key }, now + 7000); assert.equal(s.status, 200);
 });
+
+test('api: ranked sprint is scored on the server and ends at 90 seconds', async () => {
+  const store = mem(); let now = Date.parse('2026-10-09T10:00:00Z');
+  const key = (await call(store, '/api/register', { handle: 'sprinter' }, now)).body.key;
+  let r = await call(store, '/api/sprint/start', { handle: 'sprinter', key }, now);
+  assert.equal(r.status, 200); const run = r.body.run; let q = r.body.question; let i = 0, score = 0;
+  assert.ok(!('truth' in q));
+  for (; i < 6; i++) {
+    now += 2000;
+    const qq = byId.get(q.id), perm = R.permFor(run, qq.id, R.optionCount(qq));
+    let ans = R.correctShown(qq, perm); if (i === 3) ans = qq.type === 'noise' ? !ans : (ans + 1) % 4;
+    r = await call(store, '/api/sprint/answer', { run, key, i, answer: ans }, now);
+    assert.equal(r.status, 200); assert.equal(r.body.correct, i !== 3, 'q' + i);
+    if (i === 3) assert.equal(r.body.penalty, R.SPRINT_WRONG);
+    score = r.body.score; q = r.body.question;
+  }
+  // after 90 seconds an answer only finalizes
+  now += 95000;
+  r = await call(store, '/api/sprint/answer', { run, key, i, answer: 0 }, now);
+  assert.ok(r.body.done); assert.equal(r.body.result.score, score); assert.equal(r.body.result.answered, 6); assert.equal(r.body.result.rank, 1);
+  r = await call(store, '/api/board?which=sprint', null, now); assert.equal(r.body.rows[0].handle, 'sprinter'); assert.equal(r.body.rows[0].score, score);
+  // too fast a restart is refused, a later one works and only the best stays
+  r = await call(store, '/api/sprint/start', { handle: 'sprinter', key }, now + 1000); assert.equal(r.status, 200);
+  const r2 = await call(store, '/api/sprint/start', { handle: 'sprinter', key }, now + 2000); assert.equal(r2.status, 429);
+  r = await call(store, '/api/sprint/finish', { run: r.body.run, key }, now + 7000); assert.equal(r.body.result.best, score);
+});
+
+test('rules: day streak counts consecutive finished blocks', () => {
+  assert.equal(R.nextDayStreak(null, 0, '2026-10-05'), 1);
+  assert.equal(R.nextDayStreak('2026-10-05', 1, '2026-10-06'), 2);
+  assert.equal(R.nextDayStreak('2026-10-06', 2, '2026-10-06'), 2);
+  assert.equal(R.nextDayStreak('2026-10-04', 5, '2026-10-06'), 1);
+});
