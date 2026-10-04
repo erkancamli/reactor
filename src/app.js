@@ -161,6 +161,8 @@
     $('name-text').textContent = me ? me.handle : t('name.set');
     if (session && !$('play').hidden) renderQuestion(session.question, { keepTimer: true });
   }
+  function applyTheme(th) { document.documentElement.setAttribute('data-theme', th); LS.set('theme', th); const m = document.querySelector('meta[name="theme-color"]:not([media])') || document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'theme-color' })); m.content = th === 'light' ? '#e8e3d5' : '#0a0a0a'; $('theme-btn').title = th === 'light' ? (lang === 'tr' ? 'Gece modu' : 'Dark mode') : (lang === 'tr' ? 'Gündüz modu' : 'Light mode'); }
+  $('theme-btn').onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   document.querySelectorAll('.lang button').forEach((b) => (b.onclick = () => { lang = b.dataset.lang; LS.set('lang', lang); applyLang(); if (!$('home').hidden) renderHome(); if (!$('atlas').hidden) renderAtlas(); }));
 
   // ---------- block strips ----------
@@ -524,6 +526,7 @@
   }
 
   // ---------- boot ----------
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
   applyLang();
   renderHome();
   window.__rx = { get session() { return session; }, api, startDaily, loadBank, LS };

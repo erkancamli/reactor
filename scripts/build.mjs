@@ -33,5 +33,6 @@ await writeFile('dist/index.html', shipped);
 await writeFile('dist/' + name, js);
 await writeFile('dist/' + bankName, `window.RXBANK=${bankJson};`);
 await copyFile('src/favicon.svg', 'dist/favicon.svg');
+await copyFile('src/theme.js', 'dist/theme.js');
 try { await copyFile('src/og.png', 'dist/og.png'); } catch {}
 console.log(`built dist/index.html (${(shipped.length / 1024).toFixed(0)} KB) + ${name} (${(js.length / 1024).toFixed(0)} KB) + ${bankName} (${(bankJson.length / 1024).toFixed(0)} KB), ${en.length} questions`);
