@@ -109,17 +109,30 @@ export async function handle(req, { store, ip, secret, now = Date.now() }) {
     const handle = cleanHandle(b.handle);
     if (handle.length < MIN_HANDLE) return json({ error: 'Names need 3 to 15 letters, digits or underscores.' }, 400);
     if (RESERVED.has(handle.toLowerCase())) return json({ error: 'That name is reserved. Pick another.' }, 409);
+    const uKey = `user/${handle.toLowerCase()}`;
+    if (await store.get(uKey, { type: 'json' })) return json({ error: 'That name is taken. Pick another.' }, 409);
     const rlKey = `rl/reg/${hashIp(secret, ip)}`;
     const last = await store.get(rlKey, { type: 'json' });
     if (last && now - last.at < SUBMIT_GAP_MS) return json({ error: 'Slow down a little, then try again.' }, 429);
     await store.setJSON(rlKey, { at: now });
-    const uKey = `user/${handle.toLowerCase()}`;
-    if (await store.get(uKey, { type: 'json' })) return json({ error: 'That name is taken. Pick another.' }, 409);
     const key = crypto.randomBytes(24).toString('base64url');
     await store.setJSON(uKey, { handle, keyHash: hashKey(key), at: now, total: 0, played: 0, weeks: {} });
     const again = await store.get(uKey, { type: 'json' });
     if (!again || !safeEqual(again.keyHash, hashKey(key))) return json({ error: 'That name is taken. Pick another.' }, 409);
     return json({ ok: true, handle, key });
+  }
+
+  // a name already claimed on another device: the device code proves it is yours
+  if (path.endsWith('/api/login')) {
+    if (req.method !== 'POST') return json({ error: 'Use POST.' }, 405);
+    const b = await body(); if (!b) return json({ error: 'Bad request.' }, 400);
+    const rlKey = `rl/login/${hashIp(secret, ip)}`;
+    const last = await store.get(rlKey, { type: 'json' });
+    if (last && now - last.at < SUBMIT_GAP_MS) return json({ error: 'Slow down a little, then try again.' }, 429);
+    await store.setJSON(rlKey, { at: now });
+    const a = await auth(store, { handle: b.handle, key: String(b.key || '').trim() });
+    if (a.err) return json({ error: 'That name and device code do not match.' }, 403);
+    return json({ ok: true, handle: a.handle, key: String(b.key).trim() });
   }
 
   if (path.endsWith('/api/board')) {
@@ -257,4 +270,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = { path: ['/api/register', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run'] };
+export const config = { path: ['/api/register', '/api/login', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run'] };

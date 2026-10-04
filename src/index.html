@@ -198,6 +198,12 @@ table.board{width:100%;border-collapse:collapse;font-size:14px}
 @keyframes flash{from{background:var(--flash)}}
 
 
+#name-new,#name-mine{display:flex;flex-direction:column;gap:12px}
+.namealt{font-size:14px;color:var(--mute)}
+.namealt a{color:var(--paper);text-underline-offset:3px}
+.codebox{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--ink);box-shadow:inset 0 0 0 1px var(--rail)}
+.codebox code{flex:1;font-family:var(--mono);font-size:13px;word-break:break-all;color:var(--paper)}
+.codebox .btn{min-height:38px;padding:8px 14px;font-size:14px}
 /* Kelvin */
 .herorow{display:flex;align-items:center;gap:14px}
 .kwrap{flex:0 0 auto;width:72px;height:86px}
@@ -333,10 +339,19 @@ input.name{width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--r
 <div class="ov" id="dlg-name" hidden>
   <div class="sheet" role="dialog" aria-modal="true">
     <div class="herorow"><div class="kwrap small" id="name-kelvin"></div><h2 data-t="name.title">Pick your player name</h2></div>
-    <p class="mute" data-t="name.sub">The Daily Block is one run per name per day, so the board needs to know who you are. Your name is kept on this device, no login.</p>
-    <input class="name" id="name-input" maxlength="15" placeholder="ecamli" autocomplete="off" spellcheck="false">
-    <p class="err" id="name-err"></p>
-    <div class="row"><button class="btn solid" id="name-save" data-t="name.save">Save name</button><button class="btn quiet" id="name-cancel" data-t="cancel">Cancel</button></div>
+    <p class="mute" id="name-sub" data-t="name.sub">The Daily Block is one run per name per day, so the board needs to know who you are. Your name is kept on this device, no login.</p>
+    <div id="name-new">
+      <input class="name" id="name-input" maxlength="15" placeholder="ecamli" autocomplete="off" spellcheck="false">
+      <input class="name" id="code-input" maxlength="64" autocomplete="off" spellcheck="false" hidden>
+      <p class="err" id="name-err"></p>
+      <div class="row"><button class="btn solid" id="name-save" data-t="name.save">Save name</button><button class="btn quiet" id="name-cancel" data-t="cancel">Cancel</button></div>
+      <p class="namealt"><a href="#" id="name-mode"></a></p>
+    </div>
+    <div id="name-mine" hidden>
+      <p class="mute" id="mine-text"></p>
+      <div class="codebox"><code id="mine-code"></code><button class="btn quiet" id="mine-copy" data-t="copy">Copy</button></div>
+      <div class="row"><button class="btn solid" id="mine-close" data-t="done">Done</button><button class="btn quiet" id="mine-switch" data-t="name.switch">Use another name</button></div>
+    </div>
   </div>
 </div>
 <div class="ov" id="dlg-how" hidden>

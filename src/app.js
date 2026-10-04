@@ -32,7 +32,7 @@
       'rank.line': 'You are a <b>{rank}</b> with {total} points.', 'rank.next': ' {left} more to {next}.',
       'name.title': 'Pick your player name', 'name.sub': 'The Daily Block is one run per name per day, so the board needs to know who you are. Your name is kept on this device, no login.',
       'name.save': 'Save name', 'cancel': 'Cancel', 'name.saving': 'Saving…', 'name.err.net': 'Could not reach the server. Try again.',
-      'name.set': 'Set a name',
+      'name.set': 'Set a name', 'name.have': 'Already have this name on another device? Sign in with your device code', 'name.new': 'New here? Pick a fresh name', 'name.signin': 'Sign in', 'name.codeph': 'Device code', 'name.taken': ' If it is yours, sign in with your device code below.', 'mine.title': 'Your player name', 'mine.text': 'You play as <b>{h}</b>. To play under the same name on your phone, tablet or another computer, open Reactor there, tap the name button and sign in with this device code. Keep it private, it works like a password.', 'done': 'Done', 'copy': 'Copy', 'name.switch': 'Use another name',
       'kind.mcq': 'Pick one', 'kind.fill': 'Fill the blank', 'kind.noise': 'Signal or noise?', 'kind.order': 'Put these in order', 'kind.source': 'Which post says this?',
       'signal': 'Signal', 'noise': 'Noise', 'order.submit': 'Lock this order', 'order.hint': 'Tap the steps in the order they happen. Tap again to undo.',
       'life.webcall': 'Webcall', 'life.filter': 'Filter', 'life.handover': 'Handover',
@@ -71,7 +71,7 @@
       'rank.line': '<b>{rank}</b> seviyesindesin, {total} puan.', 'rank.next': ' {next} için {left} puan kaldı.',
       'name.title': 'Oyuncu adını seç', 'name.sub': 'Günün Bloğu her isme günde bir hak, tablo seni tanımalı. Adın bu cihazda saklanır, giriş yapmak gerekmez.',
       'name.save': 'Adı kaydet', 'cancel': 'Vazgeç', 'name.saving': 'Kaydediliyor…', 'name.err.net': 'Sunucuya ulaşılamadı. Tekrar dene.',
-      'name.set': 'İsim seç',
+      'name.set': 'İsim seç', 'name.have': 'Bu isim başka cihazında mı kayıtlı? Cihaz koduyla giriş yap', 'name.new': 'Yeni misin? Yeni bir isim seç', 'name.signin': 'Giriş yap', 'name.codeph': 'Cihaz kodu', 'name.taken': ' İsim seninse aşağıdan cihaz kodunla giriş yap.', 'mine.title': 'Oyuncu adın', 'mine.text': '<b>{h}</b> olarak oynuyorsun. Aynı isimle telefonda, tablette veya başka bir bilgisayarda oynamak için orada Reactor\'ı aç, isim düğmesine dokun ve bu cihaz koduyla giriş yap. Kodu kimseyle paylaşma, şifre gibi çalışır.', 'done': 'Tamam', 'copy': 'Kopyala', 'name.switch': 'Başka isim kullan',
       'kind.mcq': 'Birini seç', 'kind.fill': 'Boşluğu doldur', 'kind.noise': 'Sinyal mi gürültü mü?', 'kind.order': 'Sıraya koy', 'kind.source': 'Bu cümle hangi yazıdan?',
       'signal': 'Sinyal', 'noise': 'Gürültü', 'order.submit': 'Sırayı onayla', 'order.hint': 'Adımlara olma sırasıyla dokun. Geri almak için tekrar dokun.',
       'life.webcall': 'Webcall', 'life.filter': 'Filtre', 'life.handover': 'Devir',
@@ -94,7 +94,7 @@
       'share.sprint': 'Reactor Sprint: {score} puan, 90 saniyede {answered} sorudan {ok} doğru\n{url}',
     },
   };
-  const ERR_TR = { 'That name is taken. Pick another.': 'Bu isim alınmış. Başka bir isim seç.', 'That name is reserved. Pick another.': 'Bu isim ayrılmış. Başka bir isim seç.', 'Names need 3 to 15 letters, digits or underscores.': 'İsim 3 ile 15 karakter olmalı: harf, rakam veya alt çizgi.', 'Slow down a little, then try again.': 'Biraz yavaş, sonra tekrar dene.', 'That name is not registered. Save a name first.': 'Bu isim kayıtlı değil. Önce bir isim kaydet.', 'That name belongs to another player. Pick a different one.': 'Bu isim başka bir oyuncuya ait. Farklı bir isim seç.', 'The webcall would give that one away.': 'Webcall bu sorunun cevabını verirdi.', 'That lifeline is already used.': 'Bu yardım hakkı kullanıldı.', 'This block is already finalized.': 'Bu blok zaten tamamlandı.', 'The board hit an error. Try again in a moment.': 'Sunucuda bir hata oldu. Biraz sonra tekrar dene.' };
+  const ERR_TR = { 'That name and device code do not match.': 'Bu isim ve cihaz kodu eşleşmiyor.', 'That name is taken. Pick another.': 'Bu isim alınmış. Başka bir isim seç.', 'That name is reserved. Pick another.': 'Bu isim ayrılmış. Başka bir isim seç.', 'Names need 3 to 15 letters, digits or underscores.': 'İsim 3 ile 15 karakter olmalı: harf, rakam veya alt çizgi.', 'Slow down a little, then try again.': 'Biraz yavaş, sonra tekrar dene.', 'That name is not registered. Save a name first.': 'Bu isim kayıtlı değil. Önce bir isim kaydet.', 'That name belongs to another player. Pick a different one.': 'Bu isim başka bir oyuncuya ait. Farklı bir isim seç.', 'The webcall would give that one away.': 'Webcall bu sorunun cevabını verirdi.', 'That lifeline is already used.': 'Bu yardım hakkı kullanıldı.', 'This block is already finalized.': 'Bu blok zaten tamamlandı.', 'The board hit an error. Try again in a moment.': 'Sunucuda bir hata oldu. Biraz sonra tekrar dene.' };
   const trErr = (m) => (lang === 'tr' && ERR_TR[m]) || m;
   const t = (k, vars) => { let s = (T[lang] && T[lang][k]) || T.en[k] || k; if (vars) for (const [a, b] of Object.entries(vars)) s = s.split('{' + a + '}').join(b); return s; };
   const TOPICS = {
@@ -249,7 +249,28 @@
   $('home-link').onclick = (e) => { e.preventDefault(); stopTimer(); session = null; renderHome(); };
 
   // ---------- name ----------
-  function openName() { $('name-kelvin').innerHTML = kelvin('think'); $('name-err').textContent = ''; $('name-input').value = me ? me.handle : ''; $('dlg-name').hidden = false; setTimeout(() => $('name-input').focus(), 50); return new Promise((res) => { nameResolve = res; }); }
+  let nameMode = 'new'; // 'new' claims a fresh name, 'signin' uses a device code from another device
+  function setNameMode(m) {
+    nameMode = m; $('code-input').hidden = m !== 'signin'; $('code-input').placeholder = t('name.codeph');
+    $('name-save').textContent = m === 'signin' ? t('name.signin') : t('name.save');
+    $('name-mode').textContent = m === 'signin' ? t('name.new') : t('name.have');
+    $('dlg-name').querySelector('h2').textContent = t('name.title'); $('name-err').textContent = '';
+  }
+  function openName(forceForm) {
+    $('name-kelvin').innerHTML = kelvin('think'); $('name-err').textContent = ''; $('dlg-name').hidden = false;
+    const mine = !!me && !forceForm;
+    $('name-new').hidden = mine; $('name-mine').hidden = !mine; $('name-sub').hidden = mine;
+    if (mine) {
+      $('dlg-name').querySelector('h2').textContent = t('mine.title');
+      $('mine-text').innerHTML = t('mine.text', { h: esc(me.handle) }); $('mine-code').textContent = me.key;
+    } else { $('name-input').value = ''; $('code-input').value = ''; setNameMode('new'); setTimeout(() => $('name-input').focus(), 50); }
+    return new Promise((res) => { nameResolve = res; });
+  }
+  $('name-mode').onclick = (e) => { e.preventDefault(); setNameMode(nameMode === 'signin' ? 'new' : 'signin'); (nameMode === 'signin' ? $('code-input') : $('name-input')).focus(); };
+  $('mine-copy').onclick = () => navigator.clipboard.writeText(me.key).then(() => toast(t('copied')));
+  $('mine-close').onclick = () => { $('dlg-name').hidden = true; if (nameResolve) nameResolve(true); };
+  $('mine-switch').onclick = () => openName(true);
+  $('code-input').onkeydown = (e) => { if (e.key === 'Enter') $('name-save').click(); };
   let nameResolve = null;
   $('name-chip').onclick = () => openName();
   $('name-cancel').onclick = () => { $('dlg-name').hidden = true; if (nameResolve) nameResolve(false); };
@@ -257,11 +278,14 @@
     const h = $('name-input').value.trim();
     $('name-save').disabled = true; $('name-save').textContent = t('name.saving');
     try {
-      const r = await api('/api/register', { handle: h });
+      const r = nameMode === 'signin' ? await api('/api/login', { handle: h, key: $('code-input').value.trim() }) : await api('/api/register', { handle: h });
       me = { handle: r.handle, key: r.key }; LS.set('me', me); $('name-text').textContent = me.handle; $('dlg-name').hidden = true; board.cache = {};
       if (nameResolve) nameResolve(true);
-    } catch (e) { $('name-err').textContent = e.status ? trErr(e.message) : t('name.err.net'); }
-    $('name-save').disabled = false; $('name-save').textContent = t('name.save');
+    } catch (e) {
+      $('name-err').textContent = (e.status ? trErr(e.message) : t('name.err.net')) + (e.status === 409 && nameMode === 'new' && /taken|alınmış/.test(e.message + trErr(e.message)) ? t('name.taken') : '');
+      if (e.status === 409 && nameMode === 'new') setTimeout(() => { setNameMode('signin'); $('name-err').textContent = trErr(e.message) + t('name.taken'); $('code-input').focus(); }, 0);
+    }
+    $('name-save').disabled = false; $('name-save').textContent = nameMode === 'signin' ? t('name.signin') : t('name.save');
   };
   $('name-input').onkeydown = (e) => { if (e.key === 'Enter') $('name-save').click(); };
 

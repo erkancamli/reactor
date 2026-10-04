@@ -119,3 +119,11 @@ test('api: timeouts, wrong answers with stake, resume after an expired question'
   r = await call(store, '/api/daily/lifeline', { run, key, i: 3, lifeline: 'webcall' }, now); assert.equal(r.status, 200);
   r = await call(store, '/api/daily/lifeline', { run, key, i: 3, lifeline: 'webcall' }, now); assert.equal(r.status, 409);
 });
+
+test('api: the same name on a second device with the device code', async () => {
+  const store = mem(); const now = Date.parse('2026-10-07T10:00:00Z');
+  const key = (await call(store, '/api/register', { handle: 'ecamli' }, now)).body.key;
+  let r = await call(store, '/api/login', { handle: 'ECAMLI', key: 'nope' }, now, '9.9.9.9'); assert.equal(r.status, 403);
+  r = await call(store, '/api/login', { handle: 'ecamli', key: ' ' + key + ' ' }, now + 5000, '9.9.9.9'); assert.equal(r.status, 200); assert.equal(r.body.handle, 'ecamli'); assert.equal(r.body.key, key);
+  r = await call(store, '/api/daily/start', { handle: 'ecamli', key: r.body.key }, now + 6000); assert.equal(r.status, 200);
+});
