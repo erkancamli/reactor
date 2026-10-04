@@ -17,7 +17,7 @@ http.createServer(async (req, res) => {
   const file = url.pathname === '/' ? 'dist/index.html' : 'dist' + url.pathname;
   try {
     const data = await readFile(file);
-    const type = file.endsWith('.html') ? 'text/html' : file.endsWith('.js') ? 'application/javascript' : file.endsWith('.svg') ? 'image/svg+xml' : file.endsWith('.png') ? 'image/png' : 'application/octet-stream';
+    const type = file.endsWith('.html') ? 'text/html' : file.endsWith('.css') ? 'text/css' : file.endsWith('.woff2') ? 'font/woff2' : file.endsWith('.js') ? 'application/javascript' : file.endsWith('.svg') ? 'image/svg+xml' : file.endsWith('.png') ? 'image/png' : 'application/octet-stream';
     res.writeHead(200, { 'content-type': type }); res.end(data);
   } catch { res.writeHead(404); res.end('not found'); }
 }).listen(port, () => console.log('dev server on ' + port));

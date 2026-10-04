@@ -14,9 +14,7 @@
 <meta name="theme-color" content="#e8e3d5" media="(prefers-color-scheme: light)">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script src="/theme.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <style>
 :root{
   --ink:#0a0a0a; --slab:#141414; --rail:#262523; --paper:#e8e3d5; --mute:#8f8a7d; --faint:#3a3835;
@@ -39,6 +37,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 a{color:var(--paper)}
 [hidden]{display:none!important}
 .app{width:100%;max-width:560px;padding:14px 16px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px}
+/* tablet and desktop: a wider column and slightly larger type */
+@media (min-width:768px){.app{max-width:640px;padding:28px 24px 48px;gap:22px}html{font-size:17px}.ans{font-size:17px}.qtext{font-size:25px}.feedback{max-width:640px}}
+@media (min-width:1200px){.app{max-width:680px}}
+/* short phones: tighter spacing so a question with four options and the tools fits the viewport */
+@media (max-height:720px) and (max-width:600px){.app{gap:12px;padding-top:10px}#play{gap:10px}.ans{min-height:46px;padding:10px 12px;font-size:15px}.qtext{font-size:18px}.tf .ans{min-height:60px}.step{min-height:44px;padding:8px 12px;font-size:14px}.block .cell{aspect-ratio:1/1.1}.life,.stake button{padding:8px 8px;font-size:12px}}
+/* narrow phones: the header must never wrap or overflow */
+@media (max-width:360px){.top .chip{max-width:96px}.theme{width:30px;height:30px}}
 h1,h2,h3{margin:0;font-weight:600;line-height:1.1}
 p{margin:0;line-height:1.5}
 .mute{color:var(--mute)}
@@ -54,6 +59,10 @@ p{margin:0;line-height:1.5}
 
 /* top bar */
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top>.row{flex-wrap:nowrap;min-width:0}
+.top .chip{min-width:0;max-width:150px}
+.top .chip b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:430px){.mark span{display:none}.top .chip{max-width:120px}.lang button{padding:6px 8px}}
 .mark{text-decoration:none;display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em;font-size:18px}
 .mark svg{width:26px;height:26px}
 .lang{display:inline-flex;border:1px solid var(--rail);border-radius:4px;overflow:hidden}
@@ -81,6 +90,7 @@ p{margin:0;line-height:1.5}
 .hero{display:flex;flex-direction:column;gap:14px;padding-top:6px}
 .hero h1{font-size:clamp(28px,7vw,36px);letter-spacing:-.01em}
 .hero .sub{max-width:34ch}
+.howlink{font-size:15px;color:var(--paper);text-underline-offset:3px}
 .modes{display:flex;flex-direction:column;gap:10px}
 .mode{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;text-align:left;padding:14px 16px;border:1px solid var(--rail);border-radius:6px;background:var(--slab)}
 .mode:hover{border-color:var(--mute)}
@@ -148,7 +158,13 @@ table.board{width:100%;border-collapse:collapse;font-size:14px}
 .life:disabled{opacity:.35}
 .life svg{width:14px;height:14px}
 .hint{font-size:13px;color:var(--mute)}
-.feedback{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--rail);padding-top:14px}
+/* the verdict slides up as a sheet so the answers stay in view and nothing needs scrolling on a phone */
+.feedback{position:fixed;left:0;right:0;bottom:0;margin:0 auto;width:100%;max-width:560px;max-height:56dvh;overflow:auto;z-index:8;display:flex;flex-direction:column;gap:12px;background:var(--slab);border:1px solid var(--rail);border-bottom:0;border-radius:12px 12px 0 0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -12px 32px var(--shadow);animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.4}}
+.feedback #next-btn{position:sticky;bottom:0;flex-shrink:0;box-shadow:0 -10px 12px var(--slab)}
+@media (max-height:720px) and (max-width:600px){.feedback{padding-top:10px;gap:8px}.feedback .why,.feedback .quote{font-size:14px}.feedback .quote{padding:8px 10px}}
+#play.answered{padding-bottom:58dvh}
+@media (min-width:600px){.feedback{bottom:16px;border-radius:10px;border-bottom:1px solid var(--rail)}}
 .verdict{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .verdict b{font-size:18px}
 .verdict .pts{font-family:var(--mono);font-size:18px}
@@ -211,6 +227,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
     <div class="row" style="gap:8px">
       <button class="chip" id="name-chip"><b id="name-text">…</b></button>
       <div class="lang" role="group" aria-label="Language"><button data-lang="en" class="on">EN</button><button data-lang="tr">TR</button></div>
+      <button class="theme" id="how-btn" aria-label="How to play"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.2a2 2 0 1 1 2.8 1.8c-.6.3-.8.7-.8 1.3"/><circle cx="8" cy="11.6" r=".6" fill="currentColor" stroke="none"/></svg></button>
       <button class="theme" id="theme-btn" aria-label="Theme"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor" stroke="none"/></svg></button>
     </div>
   </header>
@@ -219,6 +236,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
     <div class="block" id="home-block" aria-hidden="true"></div>
     <h1 data-t="home.title">Twelve questions. One block a day.</h1>
     <p class="sub mute" data-t="home.sub">Every question comes from Rialo's own posts and docs. Stake your points, call the source, filter the noise.</p>
+    <p><a href="#" id="how-hero" class="howlink" data-t="how.link">How to play, in one minute</a></p>
     <div class="modes">
       <button class="mode primary" id="go-daily"><h3 data-t="mode.daily">Daily Block</h3><p id="daily-sub">…</p><span class="go" id="daily-go">Play</span></button>
       <button class="mode" id="go-sprint"><h3 data-t="mode.sprint">Sprint</h3><p id="sprint-sub">…</p><span class="go" id="sprint-go">90 s</span></button>

@@ -49,7 +49,7 @@
       'atlas.title': 'Atlas', 'atlas.sub': 'Pick a topic. Ten questions, no clock, every answer explained with its source. Mastery counts the questions you have answered right at least once.',
       'topic.count': '{m} of {n}',
       'err.generic': 'Something went wrong. Reload and try again.', 'err.step': 'Out of step with the server. Reloading…', 'bank.loading': 'Loading questions…',
-      'how': 'How to play', 'foot': 'A fan made game by <a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a>, not affiliated with Rialo or Subzero Labs. Every question is tied to a line in a <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> post, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>, the <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a> or the rialo-cdk docs. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Source on GitHub</a>.',
+      'how': 'How to play', 'how.link': 'How to play, in one minute', 'how.start': 'Start the block', 'foot': 'A fan made game by <a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a>, not affiliated with Rialo or Subzero Labs. Every question is tied to a line in a <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> post, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>, the <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a> or the rialo-cdk docs. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Source on GitHub</a>.',
       'sprint.time': '{s}s left', 'sprint.go': 'Go', 'sprint.intro': 'Ninety seconds on the clock. Right answers pay by difficulty and speed, a wrong one costs 50 and your streak. Tap to start.',
       'share.text': 'Reactor Daily Block #{n}\n{line}\n{ok}/{total} landed, {score} points\n{url}',
       'share.sprint': 'Reactor Sprint: {score} points, {ok}/{answered} right in 90 seconds\n{url}',
@@ -88,7 +88,7 @@
       'atlas.title': 'Atlas', 'atlas.sub': 'Bir konu seç. On soru, süre yok, her cevap kaynağıyla açıklanır. Ustalık, en az bir kez doğru cevapladığın soruları sayar.',
       'topic.count': '{n} sorudan {m}',
       'err.generic': 'Bir şeyler ters gitti. Sayfayı yenileyip tekrar dene.', 'err.step': 'Sunucuyla senkron kaçtı. Yenileniyor…', 'bank.loading': 'Sorular yükleniyor…',
-      'how': 'Nasıl oynanır', 'foot': '<a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a> tarafından yapılan bir hayran oyunu, Rialo veya Subzero Labs ile bağı yoktur. Her soru bir <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> yazısına, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>\'e, <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a>\'a veya rialo-cdk dokümanlarına bağlıdır. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Kaynak kodu GitHub\'da</a>.',
+      'how': 'Nasıl oynanır', 'how.link': 'Nasıl oynanır, bir dakikada', 'how.start': 'Bloğu başlat', 'foot': '<a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a> tarafından yapılan bir hayran oyunu, Rialo veya Subzero Labs ile bağı yoktur. Her soru bir <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> yazısına, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>\'e, <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a>\'a veya rialo-cdk dokümanlarına bağlıdır. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Kaynak kodu GitHub\'da</a>.',
       'sprint.time': '{s}s kaldı', 'sprint.go': 'Başla', 'sprint.intro': 'Doksan saniyen var. Doğru cevap zorluğa ve hıza göre puan verir, yanlış 50 puan ve serini götürür. Başlamak için dokun.',
       'share.text': 'Reactor Günün Bloğu #{n}\n{line}\n{total} sorudan {ok} doğru, {score} puan\n{url}',
       'share.sprint': 'Reactor Sprint: {score} puan, 90 saniyede {answered} sorudan {ok} doğru\n{url}',
@@ -151,13 +151,23 @@
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = '__BANK_URL__'; s.onload = () => res((bank = window.RXBANK)); s.onerror = () => rej(new Error('bank')); document.head.appendChild(s); });
   }
   const screens = ['home', 'play', 'result', 'atlas'];
-  function show(id) { for (const s of screens) $(s).hidden = s !== id; window.scrollTo(0, 0); }
+  function show(id) { for (const s of screens) $(s).hidden = s !== id; $('feedback').hidden = true; $('play').classList.remove('answered'); window.scrollTo(0, 0); }
+  // the how to play sheet; resolves when closed (true if the player pressed the start button)
+  function openHow(startLabel) {
+    return new Promise((res) => {
+      $('how-body').innerHTML = HOW[lang] + `<div class="row"><button class="btn solid" id="how-close">${startLabel || (lang === 'tr' ? 'Tamam' : 'Got it')}</button></div>`;
+      $('dlg-how').hidden = false; $('dlg-how').querySelector('.sheet').scrollTop = 0;
+      $('how-close').onclick = () => { $('dlg-how').hidden = true; LS.set('howSeen', true); res(true); };
+    });
+  }
+  $('how-btn').onclick = () => openHow();
+  $('how-hero').onclick = (e) => { e.preventDefault(); openHow(); };
   function applyLang() {
     document.documentElement.lang = lang;
     document.querySelectorAll('.lang button').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
     document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
     $('foot').innerHTML = t('foot') + ' <a href="#" id="how-link">' + t('how') + '</a>';
-    $('how-link').onclick = (e) => { e.preventDefault(); $('how-body').innerHTML = HOW[lang] + '<button class="btn solid" id="how-close">' + (lang === 'tr' ? 'Tamam' : 'Got it') + '</button>'; $('dlg-how').hidden = false; $('how-close').onclick = () => { $('dlg-how').hidden = true; }; };
+    $('how-link').onclick = (e) => { e.preventDefault(); openHow(); };
     $('name-text').textContent = me ? me.handle : t('name.set');
     if (session && !$('play').hidden && session.question) relabel();
   }
@@ -252,7 +262,7 @@
     $('q-text').innerHTML = q.type === 'fill' ? esc(text).replace('____', '<span class="blank"></span>') : esc(text);
     $('q-quote').hidden = true; $('q-quote').innerHTML = '';
     if (q.context) { $('q-quote').hidden = false; $('q-quote').innerHTML = `<p class="context">${esc(q.context[L])}</p>`; }
-    $('feedback').hidden = true; $('submit-order').hidden = true; $('q-hint').hidden = true;
+    $('feedback').hidden = true; $('play').classList.remove('answered'); $('submit-order').hidden = true; $('q-hint').hidden = true;
     const A = $('q-answers'); A.innerHTML = ''; A.className = ''; picked = [];
     if (q.type === 'noise') {
       A.className = 'tf';
@@ -332,7 +342,6 @@
     setTimeout(() => { $('q-text').classList.remove('shake'); $('play-block').classList.remove('flash'); }, 400);
     $('play-score').textContent = fmt(session.score);
     $('play-streak').textContent = session.streak >= 2 ? `×${(1 + Math.min(STREAK_MAX, STREAK_STEP * session.streak)).toFixed(1)} ` : '';
-    if (session.mode !== 'sprint') $('feedback').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   function showFeedbackText(q, rev, res) {
     const L = lang;
@@ -344,8 +353,10 @@
     if (!res.correct && !res.skipped && q.type === 'noise') why = t('v.correctwas') + (rev.correct ? t('signal') : t('noise')) + '. ' + why;
     $('fb-why').textContent = why;
     $('fb-quote').innerHTML = `<small class="lbl">${t('quote.label')}</small>${esc(rev.ev)}<small>${t('source')}: <a href="${esc(rev.url)}" target="_blank" rel="noopener">${esc(rev.title)}</a></small>`;
-    $('feedback').hidden = false; $('q-hint').hidden = true;
+    $('feedback').hidden = false; $('q-hint').hidden = true; $('play').classList.add('answered');
     $('next-btn').textContent = session.i + 1 >= session.n ? t('finish') : t('next');
+    // bring the answered options into the strip above the sheet
+    requestAnimationFrame(() => { const sheetH = $('feedback').offsetHeight, A = $('q-answers').getBoundingClientRect(); const room = window.innerHeight - sheetH; if (A.bottom > room) window.scrollBy({ top: Math.min(A.bottom - room + 8, A.top - 8), behavior: 'smooth' }); });
   }
 
   // ---------- answering ----------
@@ -427,6 +438,7 @@
   $('life-webcall').onclick = () => lifeline('webcall'); $('life-filter').onclick = () => lifeline('filter'); $('life-handover').onclick = () => lifeline('handover');
   async function startDaily() {
     if (!me) { const ok = await openName(); if (!ok) return; }
+    if (!LS.get('howSeen', false)) await openHow(t('how.start'));
     try {
       const r = await api('/api/daily/start', { handle: me.handle, key: me.key });
       if (r.done) { showDailyResult(r.result); return; }
