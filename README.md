@@ -1,89 +1,52 @@
 # Reactor
 
-Write the rules. Watch the chain react.
+Twelve questions. One block a day.
 
-Reactor is a fan made puzzle game about [Rialo](https://rialo.io)'s reactive transactions. Every rule you write is a predicate the chain evaluates at the end of each block; when it holds, the action lands in the next block. No bot, no keeper, no cron job in between. Ten levels, each built from one Rialo text, plus a daily puzzle and a leaderboard.
+Reactor is a fan made knowledge game about [Rialo](https://rialo.io). Every question is lifted from a Rialo post, a [Rialo Learn](https://learn.rialo.io) page, the [Playground](https://playground.rialo.io) or the rialo-cdk docs, and every answer comes back with the exact line that proves it and a link to the source. It is not affiliated with Rialo or Subzero Labs.
 
-It is not affiliated with Rialo or Subzero Labs. The mechanics follow Rialo's published texts; the numbers in each world are invented for play.
+## Modes
 
-## How a level works
+- **Daily Block.** Twelve questions, the same for everyone, once a day per player name. Right answers fill your block with transactions, wrong ones leave noise. The clock runs on the server and the score is computed there, so the board is honest. Daily, weekly and all time leaderboards; ranks grow with your total (Observer, Node Runner at 2,000, Validator at 8,000, Core at 20,000).
+- **Sprint.** Ninety seconds of rapid questions, played on the device. Best score kept locally.
+- **Atlas.** Study by topic with no clock. Mastery counts the questions you have answered right at least once.
 
-A level is a world that moves block by block: price feeds, events, API responses that arrive after a delay, and a chain state. You write up to three rules of the form "when X, then Y", once or recurring. Run it and read the chain log.
+## Mechanics borrowed from Rialo
 
-- Triggers: a block ends, every N blocks, an event happens, a value compares, an API answer compares, another rule fired, a rule was dropped at a handover. A second condition can be attached with "and also".
-- Actions are the level's own: buy, sell, pay, liquidate, publish, settle and so on. Each one costs credits.
-- Credits stand in for Stake for Service: every action and every API call spends some, and a rule that holds with no credits left is skipped.
-- Stars: one when every goal is met, two when credits stay within par, three when nothing is late (and a level specific extra, like the routing fraction in level 9).
-- Keeper bot: switch it on and the same rules run the old way, through an offchain watcher that sees each block late and sometimes fails to land a transaction in congestion. The result sheet always shows both.
+| In the game | In Rialo |
+| --- | --- |
+| Stake 1x, 2x or 3x before answering; 3x triples the points and costs 300 if wrong | Stake for Service turns stake into a payment stream; here your stake is your confidence |
+| Webcall: pull the source line onto the screen, that question pays half | Edge webcalls pull web data into a transaction |
+| Filter: drop two wrong options | Stream filters noise out of market data (Project 1337) |
+| Handover: skip a question, keep your streak | A transaction carried across a Gauss handover |
+| Signal or noise: a statement is true or fabricated | Signal versus noise in the data pipeline |
 
-## The campaign
+## Question types
 
-| # | Level | Teaches | From |
-| --- | --- | --- | --- |
-| 1 | Night shift | timers and events: a contract that sets its own alarm | Introducing Rialo |
-| 2 | Stop loss | predicates on a validator attested feed | Reactive Transactions |
-| 3 | Rain cover | an API call inside the contract, and what polling costs | Introducing Rialo (Edge) |
-| 4 | Ticker wall | filtering a data stream before publishing it | Project 1337 |
-| 5 | Liquidation desk | per block collateral checks and partial liquidations | Reactive Transactions |
-| 6 | Agent labor | SCALE: escrow, deadline, a judge agent, two scenarios | Making the Agent Economy Simple and Safe |
-| 7 | Coupon calendar | RWA servicing: coupons, deposits, default detection | Rialo Makes Real World Assets Real |
-| 8 | Policy gate | a private compliance check before every payment | learn.rialo.io, compliant stablecoins |
-| 9 | Self funding | Stake for Service: a routing fraction that pays for the contract | Stake for Service |
-| 10 | Epoch change | Gauss: transactions dropped at the handover and resubmitted | Rethinking Protocol Upgrades with Gauss |
+Pick one (four options), fill the blank, signal or noise, put the steps in order, and "which post says this". Each question carries `ev`, a verbatim quote from its source, a `why` explanation, a topic and a difficulty. The bank is in `data/questions.en.jsonl` with Turkish in `data/questions.tr.jsonl`; `tools/verify.py` and `tools/verify_tr.py` check every line (quote found verbatim in the source text, lengths, option counts, no dashes). The writing and review rules are in `tools/INSTRUCTIONS.md`, `tools/REVIEW.md` and `tools/TRANSLATE.md`. Source texts are not committed; see `data/sources.json` for where each file came from.
 
-The daily puzzle reseeds one of the worlds (stop loss, rain cover, ticker wall, liquidation desk) from the UTC day; everyone gets the same chart.
+## Scoring
 
-## Leaderboard
-
-Player names live on the game's own server: a name is claimed once, the device that claimed it gets a key, and only posts carrying that key count for that name. The server never trusts a score: it receives the rules, runs the same engine, and posts the score it computes. A rule set is a few dozen bytes, so the proof travels with the post.
-
-| Route | Method | Purpose |
-| --- | --- | --- |
-| `/api/register` | POST | Claim a player name; returns the device key |
-| `/api/scores?stage=n` | GET | Level n board (1 to 10) |
-| `/api/scores?stage=all` | GET | Overall: best per level added up |
-| `/api/scores?stage=daily[&day=YYYY-MM-DD]` | GET | The daily board |
-| `/api/scores` | POST | `{ handle, key, stage, day?, cards, routing? }`; the server runs the rules |
-
-## Project layout
-
-```
-src/index.html      the page: title, workbench, rule editor, results, leaderboard client
-src/engine.js       the simulation: blocks, signals, predicates, actions, credits, the keeper bot, scoring
-src/levels.js       the ten levels and the daily puzzle generator
-src/i18n-tr.js      Turkish text
-netlify/functions/leaderboard.mjs   the API (Netlify Functions + Netlify Blobs)
-scripts/build.mjs   inlines the engine and levels, ships the scripts as one hashed file
-test/               engine, level and API tests; a local dev server
-```
+Base points by difficulty (100, 150, 200 for pick one and fill; 80 to 120 for signal or noise; 200 to 300 for ordering; 150 to 250 for "which post"), up to +50% for a fast answer, +10% per consecutive right answer up to +50%, times the stake. A wrong answer or a timeout costs the stake penalty (0, 100 or 300) and resets the streak. All of it lives in `shared/rules.mjs`, which both the page and the server use.
 
 ## Run it
 
 ```
 npm install
-npm run build && npm run dev     # http://localhost:8790 with an in memory leaderboard
-npm test
+npm run build      # data/*.jsonl -> data/bank.mjs and dist/
+npm test           # rules and API tests with an in-memory store
+npm run dev        # http://localhost:8790 with the real API handler
 ```
 
-Deploy on Netlify: connect the repository, build command `npm run build`, publish directory `dist`. Netlify Blobs needs no setup; the API generates its own secret on first use (`RUN_SECRET` in the environment overrides it).
+Deploys to Netlify: `netlify.toml` builds `dist/` and bundles `netlify/functions/api.mjs`, which keeps players, runs and boards in Netlify Blobs (store `reactor`). No environment variables are required; a signing secret is generated on first use.
 
-## Language
+## API
 
-English and Turkish. The first visit follows the browser language; the TR / EN button switches at any time. Share texts stay in English.
+- `POST /api/register {handle}` claims a name, returns a device key
+- `POST /api/daily/start {handle, key}` starts or resumes today's run
+- `POST /api/daily/lifeline {run, key, i, lifeline}` webcall, filter or handover
+- `POST /api/daily/answer {run, key, i, answer, stake}` judges one question and serves the next
+- `GET /api/board?which=today|week|all`, `GET /api/me?handle=`, `GET /api/daily/run?run=`
 
-## Sources
+## Credits
 
-- [Introducing Rialo: A Blockchain Built for the Real World](https://www.rialo.io/posts/introducing-rialo)
-- [Reactive Transactions: A Model for Native Automation on Rialo](https://www.rialo.io/posts/reactive-transactions-a-model-for-native-automation-on-rialo)
-- [Project 1337: The Recap](https://www.rialo.io/posts/project-1337)
-- [Stake for Service: A Better Way to Pay on Rialo](https://www.rialo.io/posts/stake-for-service)
-- [Making the Agent Economy Simple and Safe with Rialo](https://www.rialo.io/posts/making-the-agent-economy-simple-and-safe-with-rialo)
-- [Rialo Makes Real World Assets Real](https://www.rialo.io/posts/rialo-makes-real-world-assets-real)
-- [Building Native Privacy for Real-World Blockchain Adoption](https://www.rialo.io/posts/building-native-privacy-for-real-world-blockchain-adoption)
-- [Rethinking Protocol Upgrades with Gauss](https://www.rialo.io/posts/rethinking-protocol-upgrades-with-gauss)
-- [learn.rialo.io: Modeling Compliant Stablecoins on Rialo](https://learn.rialo.io/demos/stablecoins/)
-- [Rialo Dev Portal](https://www.rialo.io/for-devs)
-
-## Bugs, ideas and license
-
-Bugs and ideas: write to [@ekinoks_26](https://x.com/ekinoks_26) on X. MIT license, see LICENSE. Rialo and the Rialo name belong to their owners; this is a fan project.
+Made by ecamli ([@ekinoks_26](https://x.com/ekinoks_26)). MIT license. Rialo, Subzero Labs and the quoted texts belong to their authors.
