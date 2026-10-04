@@ -1,7 +1,7 @@
 // Local stand-in for Netlify: serves dist/ and routes /api/* to the real handler with an in-memory store.
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { handle } from '../netlify/functions/leaderboard.mjs';
+const handle = async () => new Response(JSON.stringify({ error: 'no api in the prototype' }), { status: 404, headers: { 'content-type': 'application/json' } });
 const mem = new Map();
 const store = { async get(k) { return mem.has(k) ? JSON.parse(mem.get(k)) : null; }, async setJSON(k, v) { mem.set(k, JSON.stringify(v)); } };
 const debug = process.argv.includes('--debug');

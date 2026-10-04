@@ -3,9 +3,9 @@
 import { readFile, writeFile, mkdir, rm, copyFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 const read = (f) => readFile(f, 'utf8');
-const [page0, engine, levels, tr] = await Promise.all(['src/index.html', 'src/engine.js', 'src/levels.js', 'src/i18n-tr.js'].map((f) => read(f).catch(() => '')));
+const [page0, game] = await Promise.all(['src/index.html', 'src/game.js'].map((f) => read(f).catch(() => '')));
 if (!page0.includes('/*__CORE__*/')) { console.error('Build stopped: core placeholder missing'); process.exit(1); }
-const page = page0.replace('/*__CORE__*/', () => [engine, levels, tr].join('\n;\n'));
+const page = page0.replace('/*__CORE__*/', () => game);
 await rm('dist', { recursive: true, force: true }); await mkdir('dist', { recursive: true });
 const scripts = [...page.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
 for (const code of scripts) { try { new Function(code); } catch (e) { console.error('Build stopped: a page script does not parse:', e.message); process.exit(1); } }
