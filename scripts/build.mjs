@@ -34,6 +34,7 @@ await writeFile('dist/' + name, js);
 await writeFile('dist/' + bankName, `window.RXBANK=${bankJson};`);
 await copyFile('src/favicon.svg', 'dist/favicon.svg');
 await copyFile('src/theme.js', 'dist/theme.js');
+await copyFile('src/robots.txt', 'dist/robots.txt');
 await mkdir('dist/fonts', { recursive: true });
 for (const f of await readdir('src/fonts')) await copyFile('src/fonts/' + f, 'dist/fonts/' + f);
 try { await copyFile('src/og.png', 'dist/og.png'); } catch {}
