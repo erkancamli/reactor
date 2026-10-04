@@ -45,7 +45,7 @@
       'res.atlas.title': 'Topic round done', 'res.atlas.sub': '{ok} of {n} right. Mastery in {topic}: {pct}%.',
       'st.score': 'points', 'st.streak': 'best streak', 'st.time': 'answer time', 'st.rank': 'rank today', 'st.answered': 'answered', 'st.correct': 'right',
       'share.x': 'Share on X', 'share.copy': 'Copy result', 'copied': 'Copied', 'home': 'Home', 'again': 'Play again', 'atlas.more': 'Another topic',
-      'review': 'Review', 'source': 'Source', 'rank.today': 'Rank today: <b>#{rank}</b>. Total {total} points, you are a <b>{title}</b>.',
+      'review': 'Review', 'source': 'Source', 'quote.label': 'The line in the source', 'rank.today': 'Rank today: <b>#{rank}</b>. Total {total} points, you are a <b>{title}</b>.',
       'atlas.title': 'Atlas', 'atlas.sub': 'Pick a topic. Ten questions, no clock, every answer explained with its source. Mastery counts the questions you have answered right at least once.',
       'topic.count': '{m} of {n}',
       'err.generic': 'Something went wrong. Reload and try again.', 'err.step': 'Out of step with the server. Reloading…', 'bank.loading': 'Loading questions…',
@@ -84,7 +84,7 @@
       'res.atlas.title': 'Konu turu bitti', 'res.atlas.sub': '{n} sorudan {ok} doğru. {topic} ustalığı: %{pct}.',
       'st.score': 'puan', 'st.streak': 'en iyi seri', 'st.time': 'cevap süresi', 'st.rank': 'bugünkü sıra', 'st.answered': 'cevaplanan', 'st.correct': 'doğru',
       'share.x': "X'te paylaş", 'share.copy': 'Sonucu kopyala', 'copied': 'Kopyalandı', 'home': 'Ana sayfa', 'again': 'Tekrar oyna', 'atlas.more': 'Başka konu',
-      'review': 'Gözden geçir', 'source': 'Kaynak', 'rank.today': 'Bugünkü sıran: <b>#{rank}</b>. Toplam {total} puan, seviyen <b>{title}</b>.',
+      'review': 'Gözden geçir', 'source': 'Kaynak', 'quote.label': 'Kaynaktaki özgün cümle, İngilizce', 'rank.today': 'Bugünkü sıran: <b>#{rank}</b>. Toplam {total} puan, seviyen <b>{title}</b>.',
       'atlas.title': 'Atlas', 'atlas.sub': 'Bir konu seç. On soru, süre yok, her cevap kaynağıyla açıklanır. Ustalık, en az bir kez doğru cevapladığın soruları sayar.',
       'topic.count': '{n} sorudan {m}',
       'err.generic': 'Bir şeyler ters gitti. Sayfayı yenileyip tekrar dene.', 'err.step': 'Sunucuyla senkron kaçtı. Yenileniyor…', 'bank.loading': 'Sorular yükleniyor…',
@@ -116,7 +116,7 @@
 <li><b>Streak.</b> Each consecutive right answer adds 10% to the next one, up to 50%. Fast answers earn up to 50% extra.</li>
 <li><b>Sprint</b> is ninety seconds of rapid questions, played on this device. <b>Atlas</b> is topic study with no clock.</li>
 </ul>
-<p>Ranks grow with your total: Observer, Node Runner at 2,000, Validator at 8,000, Core at 20,000.</p>`,
+<p>Ranks cool down as your total grows, a nod to Subzero Labs and to kelvin, Rialo's base unit: Ambient, Frost at 2,000, Subzero at 8,000, Zero Kelvin at 20,000.</p>`,
     tr: `<h2>Nasıl oynanır</h2>
 <p>Reactor, Rialo hakkında bir bilgi oyunu. Her soru bir Rialo yazısından, Rialo Learn sayfasından, Playground'dan veya rialo-cdk dokümanlarından alındı; her cevapla birlikte onu kanıtlayan cümle ekrana gelir.</p>
 <ul>
@@ -128,7 +128,7 @@
 <li><b>Seri.</b> Art arda her doğru cevap sonrakine %10 ekler, en fazla %50. Hızlı cevap %50'ye kadar ek puan getirir.</li>
 <li><b>Sprint</b> doksan saniyelik hızlı soru turu, bu cihazda oynanır. <b>Atlas</b> süresiz konu çalışması.</li>
 </ul>
-<p>Seviyeler toplam puanla yükselir: Observer, 2.000'de Node Runner, 8.000'de Validator, 20.000'de Core.</p>`,
+<p>Seviyeler toplam puan arttıkça soğur; Subzero Labs'e ve Rialo'nun temel birimi kelvin'e bir selam: Ambient, 2.000'de Frost, 8.000'de Subzero, 20.000'de Zero Kelvin.</p>`,
   };
 
   // ---------- state ----------
@@ -159,7 +159,7 @@
     $('foot').innerHTML = t('foot') + ' <a href="#" id="how-link">' + t('how') + '</a>';
     $('how-link').onclick = (e) => { e.preventDefault(); $('how-body').innerHTML = HOW[lang] + '<button class="btn solid" id="how-close">' + (lang === 'tr' ? 'Tamam' : 'Got it') + '</button>'; $('dlg-how').hidden = false; $('how-close').onclick = () => { $('dlg-how').hidden = true; }; };
     $('name-text').textContent = me ? me.handle : t('name.set');
-    if (session && !$('play').hidden) renderQuestion(session.question, { keepTimer: true });
+    if (session && !$('play').hidden && session.question) relabel();
   }
   function applyTheme(th) { document.documentElement.setAttribute('data-theme', th); LS.set('theme', th); const m = document.querySelector('meta[name="theme-color"]:not([media])') || document.head.appendChild(Object.assign(document.createElement('meta'), { name: 'theme-color' })); m.content = th === 'light' ? '#e8e3d5' : '#0a0a0a'; $('theme-btn').title = th === 'light' ? (lang === 'tr' ? 'Gece modu' : 'Dark mode') : (lang === 'tr' ? 'Gündüz modu' : 'Light mode'); }
   $('theme-btn').onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
@@ -294,6 +294,25 @@
       else if (session.mode === 'atlas') { stopTimer(); $('timer').querySelector('i').style.transform = 'scaleX(0)'; }
     }
   }
+  // swap the texts of the question on screen to the current language without touching any state
+  function relabel() {
+    const q = session.question, L = lang;
+    $('q-kind').textContent = t('kind.' + q.type); $('q-topic').textContent = topicName(q.topic);
+    const text = q.type === 'noise' ? q.s[L] : q.q[L];
+    const blank = $('q-text').querySelector('.blank');
+    $('q-text').innerHTML = q.type === 'fill' ? esc(text).replace('____', '<span class="blank"></span>') : esc(text);
+    if (blank && blank.textContent) { const nb = $('q-text').querySelector('.blank'); if (nb) { nb.textContent = blank.textContent; nb.style.minWidth = '0'; } }
+    const ctx = $('q-quote').querySelector('.context'); if (ctx && q.context) ctx.textContent = q.context[L];
+    const A = $('q-answers');
+    if (q.type === 'noise') { const bs = A.querySelectorAll('button'); if (bs[0]) bs[0].lastChild.textContent = t('signal'); if (bs[1]) bs[1].lastChild.textContent = t('noise'); }
+    else if (q.type === 'order') A.querySelectorAll('button').forEach((b) => { b.lastElementChild.textContent = q.steps[L][Number(b.dataset.i)]; });
+    else A.querySelectorAll('button').forEach((b) => { b.lastElementChild.textContent = q.a[L][Number(b.dataset.i)]; });
+    $('q-hint').textContent = q.type === 'order' && $('feedback').hidden ? t('order.hint') : $('q-hint').textContent;
+    $('submit-order').textContent = t('order.submit');
+    if (session.mode === 'daily') $('play-label').textContent = t('play.daily', { n: session.number }) + ' · ' + t('q.of', { i: session.i + 1, n: session.n });
+    else if (session.mode === 'atlas') $('play-label').textContent = t('play.atlas', { topic: topicName(session.topic) }) + ' · ' + t('q.of', { i: session.i + 1, n: session.n });
+    if (!$('feedback').hidden && session.lastShown) showFeedbackText(q, session.lastShown.rev, session.lastShown.res);
+  }
   function showQuote(x) { $('q-quote').hidden = false; $('q-quote').insertAdjacentHTML('beforeend', `<blockquote class="quote">${esc(x.ev)}<small>${esc(x.title)}</small></blockquote>`); }
   function lockAnswers() { $('q-answers').querySelectorAll('button').forEach((b) => (b.disabled = true)); $('submit-order').hidden = true; $('tools').hidden = true; }
   // paint the verdict on the options and show the explanation
@@ -307,6 +326,16 @@
       A.style.display = 'flex';
     } else A.querySelectorAll('button').forEach((b) => { const i = Number(b.dataset.i); if (i === rev.correct) b.classList.add('ok'); else if (given === i) b.classList.add('x'); b.classList.remove('gone'); });
     if (q.type === 'fill' && rev.correct >= 0) { const blank = $('q-text').querySelector('.blank'); if (blank) { blank.textContent = q.a[L][rev.correct]; blank.style.minWidth = '0'; } }
+    session.lastShown = { rev, res };
+    showFeedbackText(q, rev, res);
+    if (!res.correct && !res.skipped) $('q-text').classList.add('shake'); else $('play-block').classList.add('flash');
+    setTimeout(() => { $('q-text').classList.remove('shake'); $('play-block').classList.remove('flash'); }, 400);
+    $('play-score').textContent = fmt(session.score);
+    $('play-streak').textContent = session.streak >= 2 ? `×${(1 + Math.min(STREAK_MAX, STREAK_STEP * session.streak)).toFixed(1)} ` : '';
+    if (session.mode !== 'sprint') $('feedback').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function showFeedbackText(q, rev, res) {
+    const L = lang;
     const v = $('verdict'); v.className = 'verdict ' + (res.skipped ? '' : res.correct ? 'ok' : 'x');
     $('verdict-text').textContent = res.skipped ? t('v.skip') : res.timeout ? t('v.timeout') : res.correct ? t('v.ok') : t('v.x');
     $('verdict-pts').textContent = res.skipped ? '' : res.gain ? '+' + fmt(res.gain) : res.penalty ? '−' + fmt(res.penalty) : '0';
@@ -314,14 +343,9 @@
     if (!res.correct && !res.skipped && q.type !== 'order' && q.type !== 'noise') why = t('v.correctwas') + q.a[L][rev.correct] + '. ' + why;
     if (!res.correct && !res.skipped && q.type === 'noise') why = t('v.correctwas') + (rev.correct ? t('signal') : t('noise')) + '. ' + why;
     $('fb-why').textContent = why;
-    $('fb-quote').innerHTML = `${esc(rev.ev)}<small>${t('source')}: <a href="${esc(rev.url)}" target="_blank" rel="noopener">${esc(rev.title)}</a></small>`;
+    $('fb-quote').innerHTML = `<small class="lbl">${t('quote.label')}</small>${esc(rev.ev)}<small>${t('source')}: <a href="${esc(rev.url)}" target="_blank" rel="noopener">${esc(rev.title)}</a></small>`;
     $('feedback').hidden = false; $('q-hint').hidden = true;
     $('next-btn').textContent = session.i + 1 >= session.n ? t('finish') : t('next');
-    if (!res.correct && !res.skipped) $('q-text').classList.add('shake'); else $('play-block').classList.add('flash');
-    setTimeout(() => { $('q-text').classList.remove('shake'); $('play-block').classList.remove('flash'); }, 400);
-    $('play-score').textContent = fmt(session.score);
-    $('play-streak').textContent = session.streak >= 2 ? `×${(1 + Math.min(STREAK_MAX, STREAK_STEP * session.streak)).toFixed(1)} ` : '';
-    if (session.mode !== 'sprint') $('feedback').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   // ---------- answering ----------

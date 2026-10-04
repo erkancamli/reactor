@@ -15,7 +15,8 @@ export const STREAK_STEP = 0.1, STREAK_MAX = 0.5;  // +10% per consecutive corre
 export const TIME_BONUS = 0.5;                     // up to +50% for an instant answer
 export const WEBCALL_COST = 0.5;                   // the Webcall lifeline halves that question's points
 export const GRACE_MS = 2500;                      // network slack accepted after the limit
-export const RANKS = [[0, 'Observer'], [2000, 'Node Runner'], [8000, 'Validator'], [20000, 'Core']];
+// ranks cool down as the total grows: a nod to Subzero Labs and to kelvin, Rialo's base unit
+export const RANKS = [[0, 'Ambient'], [2000, 'Frost'], [8000, 'Subzero'], [20000, 'Zero Kelvin']];
 export const SPRINT_SECONDS = 90;
 
 // ---------- deterministic randomness ----------
