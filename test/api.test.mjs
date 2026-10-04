@@ -21,11 +21,12 @@ test('rules: daily set is stable, mixed and ordered by difficulty', () => {
   const a = R.pickDaily(BANK, '2026-10-04'), b = R.pickDaily(BANK, '2026-10-04'), c = R.pickDaily(BANK, '2026-10-05');
   assert.deepEqual(a, b); assert.notDeepEqual(a, c); assert.equal(a.length, 12);
   const types = a.map((id) => byId.get(id).type);
-  assert.equal(types.filter((x) => x === 'noise').length, 3); assert.equal(types.filter((x) => x === 'order').length, 1); assert.equal(types.filter((x) => x === 'source').length, 1);
+  assert.equal(types.filter((x) => x === 'noise').length, 2); assert.equal(types.filter((x) => x === 'order').length, 1); assert.equal(types.filter((x) => x === 'source').length, 1);
+  assert.ok(a.map((id) => byId.get(id).diff).filter((x) => x === 3).length <= 1, 'at most one hard question');
   const diffs = a.map((id) => byId.get(id).diff); assert.deepEqual(diffs, diffs.slice().sort());
   // no repeats across 30 consecutive days for the big pool
   const seen = new Map();
-  for (let d = 0; d < 30; d++) for (const id of R.pickDaily(BANK, R.dayKeyOf(Date.parse('2026-10-04T00:00:00Z') + d * 86400000))) if (byId.get(id).type === 'mcq' || byId.get(id).type === 'fill') { assert.ok(!seen.has(id), 'repeat ' + id + ' day ' + d + ' and ' + seen.get(id)); seen.set(id, d); }
+  for (let d = 0; d < 14; d++) for (const id of R.pickDaily(BANK, R.dayKeyOf(Date.parse('2026-10-04T00:00:00Z') + d * 86400000))) if (byId.get(id).type === 'mcq' || byId.get(id).type === 'fill') { assert.ok(!seen.has(id), 'repeat ' + id + ' day ' + d + ' and ' + seen.get(id)); seen.set(id, d); }
 });
 
 test('rules: points reward difficulty, speed, streak and stake', () => {

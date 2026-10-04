@@ -71,6 +71,7 @@ def check(path, seen_ids=None):
             elif any(len(x) > 70 for x in st): errs.append('step too long')
             elif len(set(x.strip().lower() for x in st)) < len(st): errs.append('dup steps')
         else: errs.append('type')
+        if 'context' in o: errs.extend([] if dash_ok(o['context']) and len(o['context']) <= 220 else ['context'])
         for k, v in texts(o):
             if not isinstance(v, str): errs.append('non string ' + k); continue
             if t != 'source' and not dash_ok(v): errs.append('dash in ' + k + ': ' + v[:50])

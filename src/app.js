@@ -251,6 +251,7 @@
     const text = q.type === 'noise' ? q.s[L] : q.q[L];
     $('q-text').innerHTML = q.type === 'fill' ? esc(text).replace('____', '<span class="blank"></span>') : esc(text);
     $('q-quote').hidden = true; $('q-quote').innerHTML = '';
+    if (q.context) { $('q-quote').hidden = false; $('q-quote').innerHTML = `<p class="context">${esc(q.context[L])}</p>`; }
     $('feedback').hidden = true; $('submit-order').hidden = true; $('q-hint').hidden = true;
     const A = $('q-answers'); A.innerHTML = ''; A.className = ''; picked = [];
     if (q.type === 'noise') {
@@ -293,7 +294,7 @@
       else if (session.mode === 'atlas') { stopTimer(); $('timer').querySelector('i').style.transform = 'scaleX(0)'; }
     }
   }
-  function showQuote(x) { $('q-quote').hidden = false; $('q-quote').innerHTML = `<blockquote class="quote">${esc(x.ev)}<small>${esc(x.title)}</small></blockquote>`; }
+  function showQuote(x) { $('q-quote').hidden = false; $('q-quote').insertAdjacentHTML('beforeend', `<blockquote class="quote">${esc(x.ev)}<small>${esc(x.title)}</small></blockquote>`); }
   function lockAnswers() { $('q-answers').querySelectorAll('button').forEach((b) => (b.disabled = true)); $('submit-order').hidden = true; $('tools').hidden = true; }
   // paint the verdict on the options and show the explanation
   function showFeedback(q, given, rev, res) {

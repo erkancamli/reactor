@@ -5,7 +5,9 @@
 
 export const LAUNCH_DAY = '2026-10-04';          // Daily Block #1
 export const DAILY_N = 12;
-export const DAILY_MIX = { mcq: 7, noise: 3, order: 1, source: 1 }; // fill counts as mcq in the pool
+// slots of a Daily Block: pool name -> count. Pools are defined in pickDaily; hard questions are capped so a
+// follower who has not memorised the posts still has a fair block.
+export const DAILY_MIX = { easy: 4, mid: 3, hard: 1, noise: 2, order: 1, source: 1 };
 export const LIMITS = { mcq: 20, fill: 20, noise: 10, order: 35, source: 25 }; // seconds to answer
 export const BASE = { mcq: [100, 150, 200], fill: [100, 150, 200], noise: [80, 100, 120], order: [200, 250, 300], source: [150, 200, 250] };
 export const STAKE_PENALTY = { 1: 0, 2: 100, 3: 300 };
@@ -35,11 +37,16 @@ export const weekKeyOf = (ms) => { const d = new Date(ms); const back = (d.getUT
 // only after the whole pool has been used (about a month for the big pool). Nothing to store.
 export function pickDaily(bank, day) {
   const d = Math.max(0, dayIndex(day));
-  const pools = { mcq: [], noise: [], order: [], source: [] };
-  for (const q of bank.questions) pools[q.type === 'fill' ? 'mcq' : q.type].push(q.id);
+  const pools = { easy: [], mid: [], hard: [], noise: [], order: [], source: [] };
+  for (const q of bank.questions) {
+    if (q.type === 'mcq' || q.type === 'fill') pools[q.diff >= 3 ? 'hard' : q.diff === 2 ? 'mid' : 'easy'].push(q.id);
+    else if (q.type === 'noise' && q.diff <= 2) pools.noise.push(q.id);
+    else if (q.type === 'order' && q.diff <= 2) pools.order.push(q.id);
+    else if (q.type === 'source' && q.diff <= 1) pools.source.push(q.id);
+  }
   const out = [];
-  for (const [type, n] of Object.entries(DAILY_MIX)) {
-    const pool = shuffled(pools[type].sort(), hash32('reactor|pool|' + type));
+  for (const [name, n] of Object.entries(DAILY_MIX)) {
+    const pool = shuffled(pools[name].sort(), hash32('reactor|pool|' + name));
     if (!pool.length) continue;
     const start = (d * n) % pool.length;
     for (let i = 0; i < Math.min(n, pool.length); i++) out.push(pool[(start + i) % pool.length]);
@@ -78,6 +85,7 @@ export function publicView(q, qtr, perm, day) {
   const v = { id: q.id, type: q.type, topic: q.topic, diff: q.diff, limit: LIMITS[q.type] };
   if (q.type === 'noise') { v.s = { en: q.s, tr: qtr ? qtr.s : q.s }; return v; }
   v.q = { en: q.q, tr: qtr ? qtr.q : q.q };
+  if (q.context) v.context = { en: q.context, tr: (qtr && qtr.context) || q.context };
   if (q.type === 'order') { v.steps = { en: perm.map((i) => q.steps[i]), tr: perm.map((i) => (qtr ? qtr.steps : q.steps)[i]) }; return v; }
   v.a = { en: perm.map((i) => q.a[i]), tr: perm.map((i) => (qtr ? qtr.a : q.a)[i]) };
   return v;

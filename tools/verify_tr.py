@@ -18,7 +18,7 @@ def dash(s):
 for e in en:
     t = trm.get(e['id'])
     if not t: problems.append(f"{e['id']}: missing"); continue
-    allowed = {'id', 'q', 's', 'a', 'steps', 'why'}
+    allowed = {'id', 'q', 's', 'a', 'steps', 'why', 'context'}
     for k in t:
         if k not in allowed: problems.append(f"{e['id']}: unknown field {k}")
     if 'why' not in t or not isinstance(t['why'], str): problems.append(f"{e['id']}: why missing")
