@@ -98,7 +98,7 @@ async function upsert(store, key, row, replace) {
   await store.setJSON(key, b);
 }
 
-export async function handle(req, { store, ip, secret, now = Date.now() }) {
+export async function handle(req, { store, ip, secret, adminToken, now = Date.now() }) {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '');
   const body = async () => { try { return await req.json(); } catch { return null; } };
@@ -120,6 +120,27 @@ export async function handle(req, { store, ip, secret, now = Date.now() }) {
     const again = await store.get(uKey, { type: 'json' });
     if (!again || !safeEqual(again.keyHash, hashKey(key))) return json({ error: 'That name is taken. Pick another.' }, 409);
     return json({ ok: true, handle, key });
+  }
+
+  // owner only: issue a fresh device code for a name whose code was lost. Needs ADMIN_TOKEN set in the
+  // site's environment variables; without it the route does not exist.
+  if (path.endsWith('/api/admin/rekey')) {
+    const token = adminToken || '';
+    const given = url.searchParams.get('token') || '';
+    if (token.length < 16) return json({ error: 'Not found.' }, 404);
+    const rlKey = `rl/admin/${hashIp(secret, ip)}`;
+    const last = await store.get(rlKey, { type: 'json' });
+    if (last && now - last.at < 5000) return json({ error: 'Slow down a little, then try again.' }, 429);
+    await store.setJSON(rlKey, { at: now });
+    if (!safeEqual(token, given)) return json({ error: 'Not allowed.' }, 403);
+    const h = cleanHandle(url.searchParams.get('handle'));
+    const uKey = `user/${h.toLowerCase()}`;
+    const user = h ? await store.get(uKey, { type: 'json' }) : null;
+    if (!user) return json({ error: 'Unknown name.' }, 404);
+    const key = crypto.randomBytes(24).toString('base64url');
+    user.keyHash = hashKey(key); user.rekeyedAt = now;
+    await store.setJSON(uKey, user);
+    return json({ ok: true, handle: user.handle, key, next: 'Open Reactor, tap the name button, choose sign in with your device code and paste this key.' });
   }
 
   // a name already claimed on another device: the device code proves it is yours
@@ -263,11 +284,11 @@ export default async (req, context) => {
   try {
     const env = (k) => (globalThis.Netlify && Netlify.env.get(k)) || process.env[k];
     const secret = await resolveSecret(store, env('RUN_SECRET'));
-    return await handle(req, { store, ip: context.ip, secret });
+    return await handle(req, { store, ip: context.ip, secret, adminToken: env('ADMIN_TOKEN') });
   } catch (e) {
     console.error(e);
     return json({ error: 'The board hit an error. Try again in a moment.' }, 500);
   }
 };
 
-export const config = { path: ['/api/register', '/api/login', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run'] };
+export const config = { path: ['/api/register', '/api/login', '/api/admin/rekey', '/api/board', '/api/me', '/api/daily/start', '/api/daily/lifeline', '/api/daily/answer', '/api/daily/run'] };

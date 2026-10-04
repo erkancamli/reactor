@@ -127,3 +127,14 @@ test('api: the same name on a second device with the device code', async () => {
   r = await call(store, '/api/login', { handle: 'ecamli', key: ' ' + key + ' ' }, now + 5000, '9.9.9.9'); assert.equal(r.status, 200); assert.equal(r.body.handle, 'ecamli'); assert.equal(r.body.key, key);
   r = await call(store, '/api/daily/start', { handle: 'ecamli', key: r.body.key }, now + 6000); assert.equal(r.status, 200);
 });
+
+test('api: owner can issue a new device code for a lost one', async () => {
+  const store = mem(); const now = Date.parse('2026-10-08T10:00:00Z');
+  await call(store, '/api/register', { handle: 'ecamli' }, now);
+  const admin = async (q, tok, t) => { const r = await handle(new Request('http://x/api/admin/rekey?' + q), { store, ip: '5.5.5.5', secret: 's3cret-s3cret-s3cret', adminToken: tok, now: t }); return { status: r.status, body: await r.json() }; };
+  assert.equal((await admin('handle=ecamli&token=x', undefined, now)).status, 404);
+  assert.equal((await admin('handle=ecamli&token=wrong', 'a-very-long-admin-token', now)).status, 403);
+  const r = await admin('handle=ecamli&token=a-very-long-admin-token', 'a-very-long-admin-token', now + 6000);
+  assert.equal(r.status, 200);
+  const s = await call(store, '/api/daily/start', { handle: 'ecamli', key: r.body.key }, now + 7000); assert.equal(s.status, 200);
+});
