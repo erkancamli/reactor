@@ -246,7 +246,7 @@ export async function resolveSecret(store, envSecret) {
 }
 
 export default async (req, context) => {
-  const store = getStore({ name: 'reactor', consistency: 'strong' });
+  const store = getStore({ name: 'reactor-daily', consistency: 'strong' });
   try {
     const env = (k) => (globalThis.Netlify && Netlify.env.get(k)) || process.env[k];
     const secret = await resolveSecret(store, env('RUN_SECRET'));

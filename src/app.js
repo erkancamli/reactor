@@ -94,6 +94,8 @@
       'share.sprint': 'Reactor Sprint: {score} puan, 90 saniyede {answered} sorudan {ok} doğru\n{url}',
     },
   };
+  const ERR_TR = { 'That name is taken. Pick another.': 'Bu isim alınmış. Başka bir isim seç.', 'That name is reserved. Pick another.': 'Bu isim ayrılmış. Başka bir isim seç.', 'Names need 3 to 15 letters, digits or underscores.': 'İsim 3 ile 15 karakter olmalı: harf, rakam veya alt çizgi.', 'Slow down a little, then try again.': 'Biraz yavaş, sonra tekrar dene.', 'That name is not registered. Save a name first.': 'Bu isim kayıtlı değil. Önce bir isim kaydet.', 'That name belongs to another player. Pick a different one.': 'Bu isim başka bir oyuncuya ait. Farklı bir isim seç.', 'The webcall would give that one away.': 'Webcall bu sorunun cevabını verirdi.', 'That lifeline is already used.': 'Bu yardım hakkı kullanıldı.', 'This block is already finalized.': 'Bu blok zaten tamamlandı.', 'The board hit an error. Try again in a moment.': 'Sunucuda bir hata oldu. Biraz sonra tekrar dene.' };
+  const trErr = (m) => (lang === 'tr' && ERR_TR[m]) || m;
   const t = (k, vars) => { let s = (T[lang] && T[lang][k]) || T.en[k] || k; if (vars) for (const [a, b] of Object.entries(vars)) s = s.split('{' + a + '}').join(b); return s; };
   const TOPICS = {
     company: ['Rialo and Subzero Labs', 'Rialo ve Subzero Labs'], reactive: ['Reactive transactions', 'Reaktif işlemler'], edge: ['Edge and webcalls', 'Edge ve web çağrıları'],
@@ -217,7 +219,7 @@
       const r = await api('/api/register', { handle: h });
       me = { handle: r.handle, key: r.key }; LS.set('me', me); $('name-text').textContent = me.handle; $('dlg-name').hidden = true; board.cache = {};
       if (nameResolve) nameResolve(true);
-    } catch (e) { $('name-err').textContent = e.status ? e.message : t('name.err.net'); }
+    } catch (e) { $('name-err').textContent = e.status ? trErr(e.message) : t('name.err.net'); }
     $('name-save').disabled = false; $('name-save').textContent = t('name.save');
   };
   $('name-input').onkeydown = (e) => { if (e.key === 'Enter') $('name-save').click(); };
@@ -350,7 +352,7 @@
     } catch (e) {
       if (e.status === 409 && e.body && e.body.done) { await openResultFromServer(); }
       else if (e.status === 409 || e.status === 404) { toast(t('err.step')); setTimeout(() => startDaily(), 900); }
-      else toast(e.message || t('err.generic'));
+      else toast(trErr(e.message) || t('err.generic'));
     }
     session.busy = false;
   }
@@ -392,7 +394,7 @@
         showFeedback(session.question, null, r.settled.reveal, { skipped: true });
         session.webcallText = null;
       }
-    } catch (e) { toast(e.message || t('err.generic')); }
+    } catch (e) { toast(trErr(e.message) || t('err.generic')); }
     session.busy = false;
   }
   $('life-webcall').onclick = () => lifeline('webcall'); $('life-filter').onclick = () => lifeline('filter'); $('life-handover').onclick = () => lifeline('handover');
@@ -407,7 +409,7 @@
       renderQuestion(r.question, { remainingMs: r.remainingMs });
     } catch (e) {
       if (e.body && (e.body.code === 'noname' || e.body.code === 'badkey')) { me = null; LS.set('me', null); $('name-text').textContent = t('name.set'); const ok = await openName(); if (ok) startDaily(); return; }
-      toast(e.message || t('err.generic'));
+      toast(trErr(e.message) || t('err.generic'));
     }
   }
   async function openResultFromServer() {
