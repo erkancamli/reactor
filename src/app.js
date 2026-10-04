@@ -37,7 +37,7 @@
       'signal': 'Signal', 'noise': 'Noise', 'order.submit': 'Lock this order', 'order.hint': 'Tap the steps in the order they happen. Tap again to undo.',
       'life.webcall': 'Webcall', 'life.filter': 'Filter', 'life.handover': 'Handover',
       'life.webcall.hint': 'The source line is on screen. This question pays half.', 'life.filter.hint': 'Two wrong options filtered out.', 'life.filter.no': 'The filter only works on questions with options.',
-      'stake.hint': 'Stake 2x doubles the points and costs 100 if wrong. 3x triples and costs 300.',
+      'stake.lbl': 'Stake', 'stake.hint': 'Stake 2x doubles the points and costs 100 if wrong. 3x triples and costs 300.',
       'next': 'Next', 'finish': 'Finalize block', 'v.ok': 'Landed', 'v.x': 'Noise', 'v.timeout': 'Out of time', 'v.skip': 'Handed over', 'v.correctwas': 'Correct answer: ',
       'play.daily': 'Daily Block #{n}', 'play.sprint': 'Sprint', 'play.atlas': 'Atlas: {topic}', 'q.of': '{i} of {n}',
       'res.daily.title': 'Block #{n} finalized', 'res.daily.sub': '{ok} of {n} landed. Your score is on the board.', 'res.daily.sub.nr': '{ok} of {n} landed.',
@@ -76,7 +76,7 @@
       'signal': 'Sinyal', 'noise': 'Gürültü', 'order.submit': 'Sırayı onayla', 'order.hint': 'Adımlara olma sırasıyla dokun. Geri almak için tekrar dokun.',
       'life.webcall': 'Webcall', 'life.filter': 'Filtre', 'life.handover': 'Devir',
       'life.webcall.hint': 'Kaynak cümle ekranda. Bu soru yarım puan verir.', 'life.filter.hint': 'İki yanlış şık elendi.', 'life.filter.no': 'Filtre sadece şıklı sorularda çalışır.',
-      'stake.hint': '2x puanı ikiye katlar, yanlışta 100 götürür. 3x üçe katlar, yanlışta 300 götürür.',
+      'stake.lbl': 'Stake', 'stake.hint': '2x puanı ikiye katlar, yanlışta 100 götürür. 3x üçe katlar, yanlışta 300 götürür.',
       'next': 'Sonraki', 'finish': 'Bloğu tamamla', 'v.ok': 'Yerine ulaştı', 'v.x': 'Gürültü', 'v.timeout': 'Süre bitti', 'v.skip': 'Devredildi', 'v.correctwas': 'Doğru cevap: ',
       'play.daily': 'Günün Bloğu #{n}', 'play.sprint': 'Sprint', 'play.atlas': 'Atlas: {topic}', 'q.of': '{i} / {n}',
       'res.daily.title': 'Blok #{n} tamamlandı', 'res.daily.sub': '{n} sorudan {ok} tanesi yerine ulaştı. Skorun tabloda.', 'res.daily.sub.nr': '{n} sorudan {ok} tanesi yerine ulaştı.',
@@ -367,11 +367,13 @@
     if (q.type === 'fill' && rev.correct >= 0) { const blank = $('q-text').querySelector('.blank'); if (blank) { blank.textContent = q.a[L][rev.correct]; blank.style.minWidth = '0'; } }
     session.lastShown = { rev, res };
     showFeedbackText(q, rev, res);
+    if (res.gain) bumpScore();
     if (!res.correct && !res.skipped) $('q-text').classList.add('shake'); else $('play-block').classList.add('flash');
     setTimeout(() => { $('q-text').classList.remove('shake'); $('play-block').classList.remove('flash'); }, 400);
     $('play-score').textContent = fmt(session.score);
     $('play-streak').textContent = session.streak >= 2 ? `×${(1 + Math.min(STREAK_MAX, STREAK_STEP * session.streak)).toFixed(1)} ` : '';
   }
+  function bumpScore() { const el = $('play-score'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
   function showFeedbackText(q, rev, res) {
     const L = lang;
     const v = $('verdict'); v.className = 'verdict ' + (res.skipped ? '' : res.correct ? 'ok' : 'x');
@@ -595,6 +597,16 @@
     renderReview(s.answers);
   }
 
+  // keyboard: 1 to 5 pick an option or step, Enter goes on
+  document.addEventListener('keydown', (e) => {
+    if (!session || $('play').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.key === 'Enter') { if (!$('feedback').hidden) { e.preventDefault(); $('next-btn').click(); } else if (!$('submit-order').hidden && !$('submit-order').disabled) { e.preventDefault(); $('submit-order').click(); } return; }
+    if (!$('feedback').hidden) return;
+    const n = Number(e.key);
+    if (n >= 1 && n <= 5) { const b = $('q-answers').querySelector(`button[data-i="${n - 1}"]`); if (b && !b.disabled) b.click(); }
+    if (session.question && session.question.type === 'noise') { if (e.key === '1' || e.key.toLowerCase() === 's') $('q-answers').querySelector('button[data-ans="true"]').click(); if (e.key === '2' || e.key.toLowerCase() === 'n') $('q-answers').querySelector('button[data-ans="false"]').click(); }
+  });
   // ---------- boot ----------
   applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
   applyLang();
