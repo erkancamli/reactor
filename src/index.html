@@ -176,6 +176,22 @@ table.board{width:100%;border-collapse:collapse;font-size:14px}
 .flash{animation:flash .4s}
 @keyframes flash{from{background:var(--flash)}}
 
+
+/* Kelvin */
+.herorow{display:flex;align-items:center;gap:14px}
+.kwrap{flex:0 0 auto;width:72px;height:86px}
+.kwrap.small{width:40px;height:48px}
+.kwrap svg{width:100%;height:100%;display:block}
+.k-idle{animation:bob 3.2s ease-in-out infinite}
+.k-happy{animation:hop .5s ease-out}
+.k-noise{animation:shake .35s}
+.k-idle .k-eyes{animation:blink 4.5s infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+@keyframes hop{30%{transform:translateY(-8px)}}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
+.k-eyes{transform-origin:50px 50px}
+.verdict{align-items:center}
+.verdict b{flex:1}
 /* result */
 .result{display:flex;flex-direction:column;gap:16px}
 .result h2{font-size:clamp(24px,6vw,30px)}
@@ -234,7 +250,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
 
   <main id="home" class="hero">
     <div class="block" id="home-block" aria-hidden="true"></div>
-    <h1 data-t="home.title">Twelve questions. One block a day.</h1>
+    <div class="herorow"><div class="kwrap" id="hero-kelvin"></div><h1 data-t="home.title">Twelve questions. One block a day.</h1></div>
     <p class="sub mute" data-t="home.sub">Every question comes from Rialo's own posts and docs. Stake your points, call the source, filter the noise.</p>
     <p><a href="#" id="how-hero" class="howlink" data-t="how.link">How to play, in one minute</a></p>
     <div class="modes">
@@ -266,7 +282,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
       <button class="life" id="life-handover" title="Handover"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 7h8M7 4l3 3-3 3M11.5 2v10"/></svg><span data-t="life.handover">Handover</span></button>
     </div>
     <div class="feedback" id="feedback" hidden>
-      <div class="verdict" id="verdict"><b id="verdict-text"></b><span class="pts" id="verdict-pts"></span></div>
+      <div class="verdict" id="verdict"><span class="kwrap small" id="verdict-kelvin"></span><b id="verdict-text"></b><span class="pts" id="verdict-pts"></span></div>
       <p class="why" id="fb-why"></p>
       <blockquote class="quote" id="fb-quote"></blockquote>
       <button class="btn solid" id="next-btn" data-t="next">Next</button>
@@ -277,7 +293,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
 
   <main id="result" class="result" hidden>
     <div class="block big" id="result-block" aria-hidden="true"></div>
-    <h2 id="result-title"></h2>
+    <div class="herorow"><div class="kwrap" id="result-kelvin"></div><h2 id="result-title"></h2></div>
     <p class="mute" id="result-sub"></p>
     <div class="stats" id="result-stats"></div>
     <p class="rankline" id="result-rank"></p>
@@ -294,7 +310,7 @@ input.name{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r
 
 <div class="ov" id="dlg-name" hidden>
   <div class="sheet" role="dialog" aria-modal="true">
-    <h2 data-t="name.title">Pick your player name</h2>
+    <div class="herorow"><div class="kwrap small" id="name-kelvin"></div><h2 data-t="name.title">Pick your player name</h2></div>
     <p class="mute" data-t="name.sub">The Daily Block is one run per name per day, so the board needs to know who you are. Your name is kept on this device, no login.</p>
     <input class="name" id="name-input" maxlength="15" placeholder="ecamli" autocomplete="off" spellcheck="false">
     <p class="err" id="name-err"></p>

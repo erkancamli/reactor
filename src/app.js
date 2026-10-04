@@ -175,6 +175,34 @@
   $('theme-btn').onclick = () => applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   document.querySelectorAll('.lang button').forEach((b) => (b.onclick = () => { lang = b.dataset.lang; LS.set('lang', lang); applyLang(); if (!$('home').hidden) renderHome(); if (!$('atlas').hidden) renderAtlas(); }));
 
+
+  // ---------- Kelvin, the mascot ----------
+  // One cell of the Daily Block that came alive: glacier body like a landed transaction, a paper scarf for
+  // Subzero, rounded tube limbs, an antenna that lights up when a predicate turns true. Wrong answers turn it
+  // into the striped noise cell. Colours come from the theme tokens so it works in both themes.
+  function kelvin(mood) {
+    const paper = 'var(--paper)', ink = '#0a0a0a', glacier = '#9fd3e8', signal = '#ff5c5c', amber = '#f2b84b', faint = 'var(--faint)';
+    const noise = mood === 'noise', skip = mood === 'skip';
+    const bodyFill = noise ? signal : skip ? faint : glacier;
+    const body = `<rect x="22" y="22" width="56" height="84" rx="14" fill="${bodyFill}"/>`;
+    const stripes = noise ? `<clipPath id="kc"><rect x="22" y="22" width="56" height="84" rx="14"/></clipPath><g clip-path="url(#kc)" stroke="${ink}" stroke-width="4" opacity=".28"><path d="M10 40 l50 50 M10 60 l50 50 M10 80 l50 50 M30 20 l50 50 M50 20 l40 40"/></g>` : '';
+    let eyes;
+    if (mood === 'happy') eyes = `<path d="M36 52 q6 -8 12 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M52 52 q6 -8 12 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    else if (noise) eyes = `<path d="M36 46 l10 10 M46 46 l-10 10 M54 46 l10 10 M64 46 l-10 10" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>`;
+    else if (mood === 'think') eyes = `<rect x="36" y="44" width="9" height="13" rx="3" fill="${ink}"/><rect x="55" y="48" width="9" height="6" rx="3" fill="${ink}"/>`;
+    else if (mood === 'sleep') eyes = `<path d="M36 50 h10 M54 50 h10" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>`;
+    else eyes = `<g class="k-eyes"><rect x="36" y="44" width="9" height="13" rx="3" fill="${ink}"/><rect x="55" y="44" width="9" height="13" rx="3" fill="${ink}"/></g>`;
+    const mouth = mood === 'happy' ? `<path d="M41 66 q9 10 18 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>` : noise ? `<path d="M42 70 q8 -7 16 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>` : mood === 'think' ? `<path d="M44 68 h10" stroke="${ink}" stroke-width="4" stroke-linecap="round"/>` : `<path d="M44 67 q6 4 12 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    const scarf = `<rect x="22" y="76" width="56" height="12" rx="6" fill="${paper}"/><path d="M66 82 q14 2 12 22" stroke="${paper}" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+    const antenna = `<path d="M50 22 v-10" stroke="${paper}" stroke-width="5" stroke-linecap="round"/><circle class="k-lamp" cx="50" cy="8" r="6" fill="${noise ? signal : mood === 'happy' ? amber : glacier}"/>${mood === 'happy' ? `<circle cx="50" cy="8" r="11" fill="${amber}" opacity=".25"/>` : ''}`;
+    const arms = mood === 'happy' ? `<path d="M22 70 q-12 -8 -8 -22" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M78 70 q12 -8 8 -22" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/>`
+      : mood === 'think' ? `<path d="M22 62 q-12 4 -8 16" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M78 62 q10 6 -6 12" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/>`
+      : `<path d="M22 62 q-12 6 -8 18" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M78 62 q12 6 8 18" stroke="${paper}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+    const legs = `<path d="M38 106 v8" stroke="${paper}" stroke-width="7" stroke-linecap="round"/><path d="M62 106 v8" stroke="${paper}" stroke-width="7" stroke-linecap="round"/>`;
+    const zz = mood === 'sleep' ? `<text x="80" y="30" font-family="JetBrains Mono,monospace" font-size="14" fill="${paper}">z</text><text x="88" y="18" font-family="JetBrains Mono,monospace" font-size="11" fill="${paper}">z</text>` : '';
+    return `<svg class="kelvin k-${mood}" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${antenna}${arms}${body}${stripes}${scarf}${eyes}${mouth}${legs}${zz}</svg>`;
+  }
+
   // ---------- block strips ----------
   function drawBlock(el, cells, n, nowIndex) {
     el.innerHTML = '';
@@ -188,6 +216,7 @@
     const today = dayKeyOf(Date.now()), n = dailyNumber(today);
     $('daily-go').textContent = t('daily.play');
     drawBlock($('home-block'), [], DAILY_N, -1);
+    $('hero-kelvin').innerHTML = kelvin('idle');
     if (!me) { $('daily-sub').textContent = t('daily.noname', { n }); $('rankline').hidden = true; }
     else {
       $('daily-sub').textContent = t('daily.new', { n });
@@ -220,7 +249,7 @@
   $('home-link').onclick = (e) => { e.preventDefault(); stopTimer(); session = null; renderHome(); };
 
   // ---------- name ----------
-  function openName() { $('name-err').textContent = ''; $('name-input').value = me ? me.handle : ''; $('dlg-name').hidden = false; setTimeout(() => $('name-input').focus(), 50); return new Promise((res) => { nameResolve = res; }); }
+  function openName() { $('name-kelvin').innerHTML = kelvin('think'); $('name-err').textContent = ''; $('name-input').value = me ? me.handle : ''; $('dlg-name').hidden = false; setTimeout(() => $('name-input').focus(), 50); return new Promise((res) => { nameResolve = res; }); }
   let nameResolve = null;
   $('name-chip').onclick = () => openName();
   $('name-cancel').onclick = () => { $('dlg-name').hidden = true; if (nameResolve) nameResolve(false); };
@@ -346,6 +375,7 @@
   function showFeedbackText(q, rev, res) {
     const L = lang;
     const v = $('verdict'); v.className = 'verdict ' + (res.skipped ? '' : res.correct ? 'ok' : 'x');
+    $('verdict-kelvin').innerHTML = kelvin(res.skipped ? 'skip' : res.correct ? 'happy' : 'noise');
     $('verdict-text').textContent = res.skipped ? t('v.skip') : res.timeout ? t('v.timeout') : res.correct ? t('v.ok') : t('v.x');
     $('verdict-pts').textContent = res.skipped ? '' : res.gain ? '+' + fmt(res.gain) : res.penalty ? '−' + fmt(res.penalty) : '0';
     let why = rev.why[L];
@@ -460,6 +490,7 @@
     stopTimer(); session = null; board.cache = {};
     show('result');
     drawBlock($('result-block'), res.cells, res.n, -1);
+    $('result-kelvin').innerHTML = kelvin(res.correct >= 8 ? 'happy' : res.correct <= 3 ? 'noise' : 'idle');
     $('result-title').textContent = t('res.daily.title', { n: res.number });
     $('result-sub').textContent = t(res.rank ? 'res.daily.sub' : 'res.daily.sub.nr', { ok: res.correct, n: res.n });
     $('result-stats').innerHTML = stat(fmt(res.score), t('st.score')) + stat(res.bestStreak, t('st.streak')) + stat(mmss(res.timeMs), t('st.time'));
@@ -518,6 +549,7 @@
     if (isBest) LS.set('sprintBest', s.score);
     show('result');
     drawBlock($('result-block'), s.answers.map((a) => (a.correct ? 'ok' : 'x')), Math.max(12, s.answers.length), -1);
+    $('result-kelvin').innerHTML = kelvin(isBest && s.score > 0 ? 'happy' : ok >= s.answers.length / 2 ? 'idle' : 'noise');
     $('result-title').textContent = t('res.sprint.title') + (isBest && s.score > 0 ? ' · ' + t('res.sprint.best') : '');
     $('result-sub').textContent = t('res.sprint.sub', { answered: s.answers.length, ok });
     $('result-stats').innerHTML = stat(fmt(s.score), t('st.score')) + stat(s.bestStreak, t('st.streak')) + stat(fmt(Math.max(best, s.score)), lang === 'tr' ? 'en iyi' : 'best');
@@ -553,6 +585,7 @@
     const ok = s.answers.filter((a) => a.correct).length;
     show('result');
     drawBlock($('result-block'), s.cells, s.n, -1);
+    $('result-kelvin').innerHTML = kelvin(ok >= 7 ? 'happy' : 'think');
     $('result-title').textContent = t('res.atlas.title');
     $('result-sub').textContent = t('res.atlas.sub', { ok, n: s.n, topic: topicName(s.topic), pct: Math.round((100 * m) / all.length) });
     $('result-stats').innerHTML = stat(ok + '/' + s.n, t('st.correct')) + stat(m + '/' + all.length, lang === 'tr' ? 'öğrenilen' : 'mastered') + stat(s.bestStreak, t('st.streak'));

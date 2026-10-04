@@ -9,3 +9,7 @@ The one memorable element is the block: twelve cells that fill as you answer, gl
 - Motion: a cell lands when you answer, the question shakes on a miss, the block flashes on a hit. Nothing moves on its own; reduced motion is respected.
 - Copy: plain verbs, the same word for the same thing everywhere (Daily Block, Sprint, Atlas, Webcall, Filter, Handover), explanations that teach rather than cheer.
 - Turkish is written as Turkish by a Turkish speaking crypto native, not translated word by word. Numbers stay in the source's notation.
+
+## Kelvin
+
+The mascot is one cell of the Daily Block that came alive: a glacier body like a landed transaction, a paper scarf (Subzero), rounded tube limbs and an antenna that lights up amber when it is happy. A wrong answer turns it into the striped noise cell with crossed eyes; a handover greys it out. It is drawn in code (`kelvin(mood)` in src/app.js) from the theme tokens, so it works in both themes and in the share image. Moods: idle (bobs, blinks), happy, noise, think, skip, sleep. It is an original character and does not use Rialo's logo or marks.
