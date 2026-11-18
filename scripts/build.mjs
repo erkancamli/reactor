@@ -3,6 +3,7 @@
 //  2. src/index.html with shared/rules.mjs and src/app.js inlined -> dist/index.html + one hashed immutable script
 import { readFile, writeFile, mkdir, rm, copyFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { buildLearn } from './learn.mjs';
 const read = (f) => readFile(f, 'utf8');
 const hash = (s) => createHash('sha256').update(s).digest('hex').slice(0, 10);
 
@@ -34,8 +35,12 @@ await writeFile('dist/' + name, js);
 await writeFile('dist/' + bankName, `window.RXBANK=${bankJson};`);
 await copyFile('src/favicon.svg', 'dist/favicon.svg');
 await copyFile('src/theme.js', 'dist/theme.js');
-await copyFile('src/robots.txt', 'dist/robots.txt');
 await mkdir('dist/fonts', { recursive: true });
 for (const f of await readdir('src/fonts')) await copyFile('src/fonts/' + f, 'dist/fonts/' + f);
 try { await copyFile('src/og.png', 'dist/og.png'); } catch {}
+// study guide pages, sitemap.xml and robots.txt (search engines), IndexNow ownership key (Bing, Yandex, Seznam, Naver)
+const learn = await buildLearn({ site: 'https://reactors.wtf', en, tr, sources });
+const INDEXNOW_KEY = '7c1f4be0d2a94e6f8b35a91d0e6c27f4';
+await writeFile(`dist/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY);
+console.log(`study guide: ${learn.pages} pages, ${learn.facts} facts, sitemap ${learn.urls} urls`);
 console.log(`built dist/index.html (${(shipped.length / 1024).toFixed(0)} KB) + ${name} (${(js.length / 1024).toFixed(0)} KB) + ${bankName} (${(bankJson.length / 1024).toFixed(0)} KB), ${en.length} questions`);

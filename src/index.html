@@ -20,6 +20,8 @@
 <meta name="twitter:image" content="https://reactors.wtf/og.png">
 <meta name="twitter:image:alt" content="Kelvin, the Reactor mascot, next to the line: Twelve questions. One block a day.">
 <link rel="canonical" href="https://reactors.wtf/">
+<link rel="sitemap" type="application/xml" href="/sitemap.xml">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "VideoGame", "@id": "https://reactors.wtf/#game", "name": "Reactor", "alternateName": "Reactor: the Rialo knowledge game", "url": "https://reactors.wtf/", "description": "A free, fan made daily knowledge game about Rialo. Twelve questions a day, a ninety second Sprint and an Atlas study mode, every answer backed by a line from Rialo's own posts and docs.", "image": "https://reactors.wtf/og.png", "genre": ["Quiz", "Trivia", "Educational"], "gamePlatform": "Web browser", "applicationCategory": "Game", "operatingSystem": "Any", "inLanguage": ["en", "tr"], "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "author": {"@type": "Person", "name": "ecamli", "url": "https://x.com/ekinoks_26"}, "about": [{"@type": "Thing", "name": "Rialo", "url": "https://www.rialo.io"}, {"@type": "Thing", "name": "Reactive transactions"}, {"@type": "Thing", "name": "Blockchain"}], "sameAs": ["https://github.com/erkancamli/reactor"]}, {"@type": "WebSite", "@id": "https://reactors.wtf/#site", "name": "Reactor", "url": "https://reactors.wtf/", "inLanguage": ["en", "tr"], "publisher": {"@type": "Person", "name": "ecamli"}}]}</script>
 <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#e8e3d5" media="(prefers-color-scheme: light)">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -109,6 +111,7 @@ p{margin:0;line-height:1.5}
 .hero{display:flex;flex-direction:column;gap:14px;padding-top:6px}
 .hero h1{font-size:clamp(28px,7vw,36px);letter-spacing:-.01em}
 .hero .sub{max-width:34ch}
+.links{display:flex;flex-wrap:wrap;gap:6px 18px}
 .howlink{font-size:15px;color:var(--paper);text-underline-offset:3px}
 .modes{display:flex;flex-direction:column;gap:10px}
 .mode{display:grid;grid-template-columns:1fr auto;gap:4px 14px;align-items:center;text-align:left;padding:16px 18px;border-radius:var(--r);background:var(--slab);box-shadow:0 3px 0 var(--edge),inset 0 0 0 1px var(--rail);transition:transform .08s,box-shadow .08s}
@@ -292,7 +295,7 @@ input.name{width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--r
     <div class="block" id="home-block" aria-hidden="true"></div>
     <div class="herorow"><div class="kwrap" id="hero-kelvin"></div><h1 data-t="home.title">Twelve questions. One block a day.</h1></div>
     <p class="sub mute" data-t="home.sub">Every question comes from Rialo's own posts and docs. Stake your points, call the source, filter the noise.</p>
-    <p><a href="#" id="how-hero" class="howlink" data-t="how.link">How to play, in one minute</a></p>
+    <p class="links"><a href="#" id="how-hero" class="howlink" data-t="how.link">How to play, in one minute</a><a href="/learn/" id="learn-hero" class="howlink" data-t="learn.link">Study guide: what Rialo says, topic by topic</a></p>
     <div class="modes">
       <button class="mode primary" id="go-daily"><h3 data-t="mode.daily">Daily Block</h3><p id="daily-sub">…</p><span class="go" id="daily-go">Play</span></button>
       <button class="mode" id="go-sprint"><h3 data-t="mode.sprint">Sprint</h3><p id="sprint-sub">…</p><span class="go" id="sprint-go">90 s</span></button>

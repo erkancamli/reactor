@@ -49,7 +49,7 @@
       'atlas.title': 'Atlas', 'atlas.sub': 'Pick a topic. Ten questions, no clock, every answer explained with its source. Mastery counts the questions you have answered right at least once.',
       'topic.count': '{m} of {n}',
       'err.generic': 'Something went wrong. Reload and try again.', 'err.step': 'Out of step with the server. Reloading…', 'bank.loading': 'Loading questions…',
-      'how': 'How to play', 'how.link': 'How to play, in one minute', 'how.start': 'Start the block', 'foot': 'A fan made game by <a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a>, not affiliated with Rialo or Subzero Labs. Every question is tied to a line in a <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> post, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>, the <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a> or the rialo-cdk docs. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Source on GitHub</a>.',
+      'learn': 'Study guide', 'learn.link': 'Study guide: what Rialo says, topic by topic', 'how': 'How to play', 'how.link': 'How to play, in one minute', 'how.start': 'Start the block', 'foot': 'A fan made game by <a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a>, not affiliated with Rialo or Subzero Labs. Every question is tied to a line in a <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> post, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>, the <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a> or the rialo-cdk docs. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Source on GitHub</a>.',
       'sprint.time': '{s}s left', 'sprint.go': 'Go', 'sprint.intro': 'Ninety seconds on the clock. Right answers pay by difficulty and speed, a wrong one costs 50 and your streak. Tap to start.',
       'share.text': 'Reactor Daily Block #{n}\n{line}\n{ok}/{total} landed, {score} points\n{url}',
       'share.sprint': 'Reactor Sprint: {score} points, {ok}/{answered} right in 90 seconds\n{url}',
@@ -88,7 +88,7 @@
       'atlas.title': 'Atlas', 'atlas.sub': 'Bir konu seç. On soru, süre yok, her cevap kaynağıyla açıklanır. Ustalık, en az bir kez doğru cevapladığın soruları sayar.',
       'topic.count': '{n} sorudan {m}',
       'err.generic': 'Bir şeyler ters gitti. Sayfayı yenileyip tekrar dene.', 'err.step': 'Sunucuyla senkron kaçtı. Yenileniyor…', 'bank.loading': 'Sorular yükleniyor…',
-      'how': 'Nasıl oynanır', 'how.link': 'Nasıl oynanır, bir dakikada', 'how.start': 'Bloğu başlat', 'foot': '<a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a> tarafından yapılan bir hayran oyunu, Rialo veya Subzero Labs ile bağı yoktur. Her soru bir <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> yazısına, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>\'e, <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a>\'a veya rialo-cdk dokümanlarına bağlıdır. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Kaynak kodu GitHub\'da</a>.',
+      'learn': 'Çalışma rehberi', 'learn.link': 'Çalışma rehberi: konu konu Rialo ne diyor', 'how': 'Nasıl oynanır', 'how.link': 'Nasıl oynanır, bir dakikada', 'how.start': 'Bloğu başlat', 'foot': '<a href="https://x.com/ekinoks_26" target="_blank" rel="noopener">ecamli</a> tarafından yapılan bir hayran oyunu, Rialo veya Subzero Labs ile bağı yoktur. Her soru bir <a href="https://www.rialo.io/blog" target="_blank" rel="noopener">rialo.io</a> yazısına, <a href="https://learn.rialo.io" target="_blank" rel="noopener">Rialo Learn</a>\'e, <a href="https://playground.rialo.io" target="_blank" rel="noopener">Playground</a>\'a veya rialo-cdk dokümanlarına bağlıdır. <a href="https://github.com/erkancamli/reactor" target="_blank" rel="noopener">Kaynak kodu GitHub\'da</a>.',
       'sprint.time': '{s}s kaldı', 'sprint.go': 'Başla', 'sprint.intro': 'Doksan saniyen var. Doğru cevap zorluğa ve hıza göre puan verir, yanlış 50 puan ve serini götürür. Başlamak için dokun.',
       'share.text': 'Reactor Günün Bloğu #{n}\n{line}\n{total} sorudan {ok} doğru, {score} puan\n{url}',
       'share.sprint': 'Reactor Sprint: {score} puan, 90 saniyede {answered} sorudan {ok} doğru\n{url}',
@@ -168,7 +168,9 @@
     document.documentElement.lang = lang;
     document.querySelectorAll('.lang button').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
     document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
-    $('foot').innerHTML = t('foot') + ' <a href="#" id="how-link">' + t('how') + '</a>';
+    const learnHref = lang === 'tr' ? '/tr/learn/' : '/learn/';
+    $('foot').innerHTML = t('foot') + ' <a href="#" id="how-link">' + t('how') + '</a> · <a href="' + learnHref + '">' + t('learn') + '</a>';
+    $('learn-hero').href = learnHref;
     $('how-link').onclick = (e) => { e.preventDefault(); openHow(); };
     $('name-text').textContent = me ? me.handle : t('name.set');
     if (session && !$('play').hidden && session.question) relabel();
@@ -714,7 +716,13 @@
   });
   // ---------- boot ----------
   applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+  // deep links from the study guide: ?lang=tr picks the language, ?atlas=<topic> opens that Atlas topic
+  const qp = new URLSearchParams(location.search);
+  if (qp.get('lang') === 'tr' || qp.get('lang') === 'en') { lang = qp.get('lang'); LS.set('lang', lang); }
   applyLang();
   renderHome();
+  const deep = qp.get('atlas');
+  if (qp.toString()) try { history.replaceState(null, '', '/'); } catch {}
+  if (deep && TOPICS[deep]) loadBank().then(() => startAtlas(deep), () => toast(t('err.generic')));
   window.__rx = { get session() { return session; }, api, startDaily, loadBank, LS };
 })();
